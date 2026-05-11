@@ -562,8 +562,8 @@ async function loadData(){
     renderMetrics(campaignData);
     renderCharts(campaignData);
     renderTable(campaignData);
-    document.getElementById('status-dot').classList.add('on');
-    document.getElementById('status-text').textContent=`${campaignData.length} campañas`;
+    document.getElementById('status-dot')?.classList.add('on');
+    if(document.getElementById('status-text')) document.getElementById('status-text').textContent=`${campaignData.length} campañas`;
     document.getElementById('charts-section').style.display='block';
   }catch(err){
     document.getElementById('metrics-section').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Error al conectar</div><div class="empty-sub">${err.message}</div></div>`;
