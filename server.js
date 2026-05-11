@@ -12,10 +12,17 @@ app.use(express.static('public'));
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 const PORT = process.env.PORT || 3000;
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+let supabase = null;
+try {
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
+    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    console.log('✓ Supabase conectado');
+  } else {
+    console.error('ERROR: Faltan variables SUPABASE_URL o SUPABASE_SERVICE_KEY');
+  }
+} catch(e) {
+  console.error('ERROR Supabase init:', e.message);
+}
 
 const AI_LIMITS = { basico: 10, estandar: 50, ilimitado: Infinity, invitado: 0 };
 
