@@ -703,6 +703,7 @@ function showTab(tab,el){
   document.getElementById('tab-'+tab).classList.add('active');
   el.classList.add('active');
   if(tab==='creativos'&&!creativesData.length) loadCreatives();
+  if(tab==='admin') loadAdminData();
 }
 
 function setPreset(days,btn){
@@ -1375,12 +1376,6 @@ async function toggleUserActive(id,active){
   loadAdminUsers();
 }
 
-// Cargar datos admin al abrir el tab
-const _origShowTab=showTab;
-function showTab(tab,el){
-  _origShowTab(tab,el);
-  if(tab==='admin') loadAdminData();
-}
 // ─────────────────────────────────────────────────────────────────────────────
 </script>
 </body>
