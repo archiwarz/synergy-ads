@@ -8,12 +8,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-const META_TOKEN = process.env.META_ACCESS_TOKEN;
-const META_ACCOUNT = process.env.META_ACCOUNT_ID;
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 const PORT = process.env.PORT || 3000;
 
-// Reduce campaign/ad data to only the metrics Claude needs
+function getToken(req) {
+  return req.query.token || req.body?.token || process.env.META_ACCESS_TOKEN;
+}
+
+function getAccountId(req) {
+  const id = req.query.account_id || req.body?.account_id || process.env.META_ACCOUNT_ID || '';
+  return id.startsWith('act_') ? id : `act_${id}`;
+}
+
 function slimData(items) {
   if (!Array.isArray(items)) return [];
   return items.slice(0, 50).map(item => {
@@ -64,12 +70,42 @@ function extractJson(text) {
   return m ? m[1] : text;
 }
 
+// GET cuentas publicitarias accesibles por el token
+app.get('/api/accounts', async (req, res) => {
+  try {
+    const token = getToken(req);
+    const url = `https://graph.facebook.com/v19.0/me/adaccounts?fields=id,name,account_status,currency&access_token=${token}&limit=100`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.error) return res.status(400).json({ error: data.error.message });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET info del usuario autenticado
+app.get('/api/me', async (req, res) => {
+  try {
+    const token = getToken(req);
+    const url = `https://graph.facebook.com/v19.0/me?fields=id,name,picture&access_token=${token}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.error) return res.status(400).json({ error: data.error.message });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET campañas de Meta
 app.get('/api/campaigns', async (req, res) => {
   try {
+    const token = getToken(req);
+    const accountId = getAccountId(req);
     const { date_from = '2024-11-01', date_to = '2025-04-30' } = req.query;
     const timeRange = encodeURIComponent(JSON.stringify({ since: date_from, until: date_to }));
-    const url = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/campaigns?fields=id,name,objective,status,daily_budget,lifetime_budget,insights.time_range(${timeRange}){spend,impressions,clicks,ctr,reach,frequency,actions,cost_per_action_type,cpp,cpm}&access_token=${META_TOKEN}&limit=50`;
+    const url = `https://graph.facebook.com/v19.0/${accountId}/campaigns?fields=id,name,objective,status,daily_budget,lifetime_budget,insights.time_range(${timeRange}){spend,impressions,clicks,ctr,reach,frequency,actions,cost_per_action_type,cpp,cpm}&access_token=${token}&limit=50`;
     const response = await fetch(url);
     const data = await response.json();
     if (data.error) return res.status(400).json({ error: data.error.message });
@@ -82,9 +118,10 @@ app.get('/api/campaigns', async (req, res) => {
 // GET adsets de una campaña
 app.get('/api/campaigns/:id/adsets', async (req, res) => {
   try {
+    const token = getToken(req);
     const { date_from = '2024-11-01', date_to = '2025-04-30' } = req.query;
     const timeRange = encodeURIComponent(JSON.stringify({ since: date_from, until: date_to }));
-    const url = `https://graph.facebook.com/v19.0/${req.params.id}/adsets?fields=id,name,status,targeting,daily_budget,insights.time_range(${timeRange}){spend,impressions,clicks,ctr,actions,cost_per_action_type}&access_token=${META_TOKEN}`;
+    const url = `https://graph.facebook.com/v19.0/${req.params.id}/adsets?fields=id,name,status,targeting,daily_budget,insights.time_range(${timeRange}){spend,impressions,clicks,ctr,actions,cost_per_action_type}&access_token=${token}`;
     const response = await fetch(url);
     const data = await response.json();
     if (data.error) return res.status(400).json({ error: data.error.message });
@@ -97,9 +134,10 @@ app.get('/api/campaigns/:id/adsets', async (req, res) => {
 // GET ads de un adset
 app.get('/api/adsets/:id/ads', async (req, res) => {
   try {
+    const token = getToken(req);
     const { date_from = '2024-11-01', date_to = '2025-04-30' } = req.query;
     const timeRange = encodeURIComponent(JSON.stringify({ since: date_from, until: date_to }));
-    const url = `https://graph.facebook.com/v19.0/${req.params.id}/ads?fields=id,name,status,creative,insights.time_range(${timeRange}){spend,impressions,clicks,ctr,actions}&access_token=${META_TOKEN}`;
+    const url = `https://graph.facebook.com/v19.0/${req.params.id}/ads?fields=id,name,status,creative,insights.time_range(${timeRange}){spend,impressions,clicks,ctr,actions}&access_token=${token}`;
     const response = await fetch(url);
     const data = await response.json();
     if (data.error) return res.status(400).json({ error: data.error.message });
@@ -112,8 +150,9 @@ app.get('/api/adsets/:id/ads', async (req, res) => {
 // GET todos los anuncios de la cuenta con creativos e insights
 app.get('/api/ads', async (req, res) => {
   try {
-    const accountId = META_ACCOUNT.startsWith('act_') ? META_ACCOUNT : `act_${META_ACCOUNT}`;
-    const url = `https://graph.facebook.com/v19.0/${accountId}/ads?fields=id,name,status,creative{title,body,image_url,thumbnail_url},insights.date_preset(last_90d){spend,impressions,clicks,ctr,actions,cost_per_action_type,frequency}&access_token=${META_TOKEN}&limit=100`;
+    const token = getToken(req);
+    const accountId = getAccountId(req);
+    const url = `https://graph.facebook.com/v19.0/${accountId}/ads?fields=id,name,status,creative{title,body,image_url,thumbnail_url},insights.date_preset(last_90d){spend,impressions,clicks,ctr,actions,cost_per_action_type,frequency}&access_token=${token}&limit=100`;
     const response = await fetch(url);
     const data = await response.json();
     if (data.error) return res.status(400).json({ error: data.error.message });
@@ -123,11 +162,12 @@ app.get('/api/ads', async (req, res) => {
   }
 });
 
-// GET info de la cuenta publicitaria (fecha de creación)
+// GET info de la cuenta publicitaria
 app.get('/api/account-info', async (req, res) => {
   try {
-    const accountId = META_ACCOUNT.startsWith('act_') ? META_ACCOUNT : `act_${META_ACCOUNT}`;
-    const url = `https://graph.facebook.com/v19.0/${accountId}?fields=id,name,created_time&access_token=${META_TOKEN}`;
+    const token = getToken(req);
+    const accountId = getAccountId(req);
+    const url = `https://graph.facebook.com/v19.0/${accountId}?fields=id,name,created_time&access_token=${token}`;
     const response = await fetch(url);
     const data = await response.json();
     if (data.error) return res.status(400).json({ error: data.error.message });

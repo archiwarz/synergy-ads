@@ -6,6 +6,7 @@
 <title>Synergy · Ads Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js"></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{--bg:#0f0f11;--bg2:#17171a;--bg3:#1e1e23;--border:rgba(255,255,255,0.07);--text:#f0f0f0;--text2:#9a9aaa;--text3:#5a5a6a;--accent:#1877F2;--accent-soft:rgba(24,119,242,0.12);--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--radius:10px}
@@ -23,6 +24,24 @@
   .nav-item.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft)}
   .sidebar-bottom{margin-top:auto;padding:14px 20px;border-top:1px solid var(--border)}
   .footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);margin-top:32px;font-family:'DM Mono',monospace}
+  /* Login overlay */
+  .login-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:20px}
+  .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:48px 56px;text-align:center;max-width:400px;width:90%}
+  .login-logo{width:48px;height:48px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;margin:0 auto 16px}
+  .login-title{font-size:20px;font-weight:600;letter-spacing:-0.03em;margin-bottom:6px}
+  .login-sub{font-size:13px;color:var(--text2);margin-bottom:32px;line-height:1.6}
+  .btn-meta{background:#1877F2;color:#fff;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:10px;margin:0 auto;transition:opacity 0.15s}
+  .btn-meta:hover{opacity:0.88}
+  .btn-meta svg{flex-shrink:0}
+  /* Account selector */
+  .account-select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;max-width:220px}
+  .account-select:focus{border-color:var(--accent)}
+  /* User pill */
+  .user-pill{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+  .user-avatar{width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--bg3);flex-shrink:0}
+  .user-avatar-placeholder{width:26px;height:26px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+  .btn-logout{font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;margin-top:4px;display:block;text-decoration:underline}
+  .btn-logout:hover{color:var(--text)}
   .status-pill{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2)}
   .status-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0}
   .status-dot.on{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,0.5)}
@@ -219,6 +238,20 @@
 </style>
 </head>
 <body>
+
+<!-- Login overlay -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">SY</div>
+    <div class="login-title">Synergy · Ads Intelligence</div>
+    <div class="login-sub">Conecta tu cuenta de Meta para acceder a tus cuentas publicitarias y comenzar el análisis.</div>
+    <button class="btn-meta" onclick="metaLogin()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Continuar con Meta
+    </button>
+  </div>
+</div>
+
 <div class="app">
   <aside class="sidebar">
     <div class="logo">
@@ -233,15 +266,22 @@
     <div class="nav-item" onclick="showTab('ai',this)"><span>🤖</span> Análisis IA</div>
     <div class="nav-item" onclick="showTab('reporte',this)"><span>📋</span> Reporte Mensual</div>
     <div class="sidebar-bottom">
-      <div class="status-pill">
-        <div class="status-dot" id="status-dot"></div>
-        <span id="status-text">Sin conectar</span>
+      <div id="user-info">
+        <div class="status-pill">
+          <div class="status-dot" id="status-dot"></div>
+          <span id="status-text">Sin conectar</span>
+        </div>
       </div>
     </div>
   </aside>
 
   <main class="main">
     <div class="date-bar">
+      <label>Cuenta:</label>
+      <select class="account-select" id="account-select" onchange="onAccountChange()">
+        <option value="">Seleccionar cuenta...</option>
+      </select>
+      <div class="date-divider"></div>
       <label>Período:</label>
       <div class="preset-btns">
         <button class="preset-btn" onclick="setPreset(7,this)">7d</button>
@@ -373,6 +413,87 @@ let barChart,pieChart,cplChart,ctrChart;
 const COLORS=['#1877F2','#22c55e','#f59e0b','#a855f7','#ef4444','#06b6d4','#f97316','#84cc16','#ec4899','#6366f1'];
 
 let accountCreatedDate=null;
+let metaToken=null;
+let selectedAccountId=null;
+
+// ── Meta SDK ─────────────────────────────────────────────────────────────────
+window.fbAsyncInit=function(){
+  FB.init({appId:'3938790032920672',cookie:true,xfbml:false,version:'v19.0'});
+  FB.getLoginStatus(function(res){
+    if(res.status==='connected'){
+      metaToken=res.authResponse.accessToken;
+      onMetaConnected();
+    } else {
+      document.getElementById('login-overlay').style.display='flex';
+    }
+  });
+};
+
+function metaLogin(){
+  FB.login(function(res){
+    if(res.authResponse){
+      metaToken=res.authResponse.accessToken;
+      onMetaConnected();
+    }
+  },{scope:'ads_read,ads_management'});
+}
+
+function metaLogout(){
+  FB.logout(function(){
+    metaToken=null; selectedAccountId=null;
+    document.getElementById('login-overlay').style.display='flex';
+    document.getElementById('account-select').innerHTML='<option value="">Seleccionar cuenta...</option>';
+    document.getElementById('user-info').innerHTML=`<div class="status-pill"><div class="status-dot" id="status-dot"></div><span id="status-text">Sin conectar</span></div>`;
+  });
+}
+
+async function onMetaConnected(){
+  document.getElementById('login-overlay').style.display='none';
+  // Cargar info del usuario
+  try{
+    const res=await fetch(`/api/me?token=${metaToken}`);
+    const user=await res.json();
+    if(!user.error){
+      const avatarHtml=user.picture?.data?.url
+        ?`<img class="user-avatar" src="${user.picture.data.url}" alt="">`
+        :`<div class="user-avatar-placeholder">${(user.name||'U')[0]}</div>`;
+      document.getElementById('user-info').innerHTML=`
+        <div class="user-pill">${avatarHtml}<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${user.name||''}</span></div>
+        <button class="btn-logout" onclick="metaLogout()">Cerrar sesión</button>`;
+    }
+  }catch(e){}
+  await loadAccounts();
+}
+
+async function loadAccounts(){
+  try{
+    const res=await fetch(`/api/accounts?token=${metaToken}`);
+    const data=await res.json();
+    if(data.error){console.error(data.error);return;}
+    const accounts=(data.data||[]).filter(a=>a.account_status===1||a.account_status===2);
+    const sel=document.getElementById('account-select');
+    sel.innerHTML='<option value="">Seleccionar cuenta...</option>'+
+      accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    if(accounts.length===1){
+      sel.value=accounts[0].id;
+      selectedAccountId=accounts[0].id;
+      loadData();
+    }
+  }catch(e){console.error(e);}
+}
+
+function onAccountChange(){
+  selectedAccountId=document.getElementById('account-select').value;
+  if(selectedAccountId) loadData();
+}
+
+function apiParams(extra={}){
+  const p=new URLSearchParams({...extra});
+  if(metaToken) p.set('token',metaToken);
+  if(selectedAccountId) p.set('account_id',selectedAccountId);
+  return p.toString();
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Datepicker state
 let dpStart=null,dpEnd=null,dpHover=null,dpOpen=false;
@@ -431,7 +552,7 @@ async function loadData(){
   document.getElementById('metrics-section').innerHTML='<div class="loading"><div class="spinner"></div> Conectando con Meta Ads...</div>';
   document.getElementById('charts-section').style.display='none';
   try{
-    const res=await fetch(`/api/campaigns?date_from=${from}&date_to=${to}`);
+    const res=await fetch(`/api/campaigns?${apiParams({date_from:from,date_to:to})}`);
     const data=await res.json();
     if(data.error) throw new Error(data.error);
     campaignData=data.data||[];
@@ -606,7 +727,7 @@ async function loadCreatives(){
   document.getElementById('creative-divider').style.display='none';
   document.getElementById('creative-ai-wrap').style.display='none';
   try{
-    const res=await fetch('/api/ads');
+    const res=await fetch(`/api/ads?${apiParams()}`);
     const data=await res.json();
     if(data.error) throw new Error(data.error);
     creativesData=data.data||[];
@@ -930,7 +1051,7 @@ function setPresetAll(btn){
 
 async function fetchAccountInfo(){
   try{
-    const res=await fetch('/api/account-info');
+    const res=await fetch(`/api/account-info?${apiParams()}`);
     const data=await res.json();
     if(data.created_time){
       accountCreatedDate=data.created_time.split('T')[0];
@@ -943,7 +1064,7 @@ async function fetchAccountInfo(){
 }
 // ────────────────────────────────────────────────────────────────────────────
 
-window.onload=async()=>{await fetchAccountInfo();loadData();};
+window.onload=async()=>{await fetchAccountInfo();};
 </script>
 </body>
 </html>
