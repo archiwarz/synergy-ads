@@ -1261,7 +1261,7 @@ async function loadAdminUsers(){
   try{
     const res=await fetch('/api/admin/users',{headers:authHeaders()});
     const data=await res.json();
-    if(data.error){document.getElementById('admin-users-list').innerHTML=`<div class="empty"><div class="empty-sub">${data.error}</div></div>`;return;}
+    if(data.error){document.getElementById('admin-users-list').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Error</div><div class="empty-sub">${data.error}</div></div>`;return;}
     const roleBadge=r=>`<span class="role-badge role-${r}">${{superadmin:'Super Admin',admin:'Admin',usuario:'Usuario',invitado:'Invitado'}[r]||r}</span>`;
     const tierBadge=t=>`<span class="tier-badge">${{basico:'Básico',estandar:'Estándar',ilimitado:'Ilimitado'}[t]||t}</span>`;
     const rows=(data.users||[]).map(u=>{
@@ -1283,7 +1283,7 @@ async function loadAdminUsers(){
       </div>`;
     }).join('');
     document.getElementById('admin-users-list').innerHTML=rows||'<div class="empty"><div class="empty-sub">Sin usuarios</div></div>';
-  }catch(e){console.error(e);}
+  }catch(e){document.getElementById('admin-users-list').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Error</div><div class="empty-sub">${e.message}</div></div>`;}
 }
 
 async function loadAdminInvites(){

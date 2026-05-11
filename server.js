@@ -79,12 +79,17 @@ function extractJson(text) {
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
 async function requireAuth(req, res, next) {
+  if (!supabase) return res.status(503).json({ error: 'Base de datos no disponible. Verifica variables SUPABASE_URL y SUPABASE_SERVICE_KEY.' });
   const fbId = req.headers['x-facebook-id'];
   if (!fbId) return res.status(401).json({ error: 'No autorizado' });
-  const { data: user } = await supabase.from('users').select('*').eq('facebook_id', fbId).single();
-  if (!user || !user.active) return res.status(403).json({ error: 'Acceso denegado' });
-  req.user = user;
-  next();
+  try {
+    const { data: user } = await supabase.from('users').select('*').eq('facebook_id', fbId).single();
+    if (!user || !user.active) return res.status(403).json({ error: 'Acceso denegado' });
+    req.user = user;
+    next();
+  } catch(e) {
+    return res.status(500).json({ error: 'Error de base de datos: ' + e.message });
+  }
 }
 
 function requireAdmin(req, res, next) {
