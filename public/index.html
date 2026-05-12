@@ -563,25 +563,7 @@ window.fbAsyncInit=function(){
 };
 
 async function checkStartupAuth(){
-  // 1. Revisar si hay invite en URL
-  const inviteToken=new URLSearchParams(window.location.search).get('invite');
-  if(inviteToken){
-    try{
-      const res=await fetch(`/api/invite/${inviteToken}`);
-      const inv=await res.json();
-      if(!inv.error&&['usuario','invitado'].includes(inv.role)){
-        pendingInviteToken=inviteToken;
-        document.getElementById('login-meta-box').style.display='none';
-        document.getElementById('login-guest-box').style.display='block';
-        const roleLbl=inv.role==='invitado'?'Invitado':'Usuario';
-        document.getElementById('login-guest-sub').textContent=`Fuiste invitado como ${roleLbl}. Ingresa tu nombre para continuar.`;
-        document.getElementById('login-overlay').style.display='flex';
-        return;
-      }
-    }catch(e){}
-  }
-
-  // 2. Revisar sesión guest en localStorage
+  // 1. Si hay sesión activa, auto-login (tiene prioridad sobre el invite)
   if(sessionToken){
     try{
       const res=await fetch('/api/auth/me',{headers:{'x-session-token':sessionToken}});
@@ -591,7 +573,36 @@ async function checkStartupAuth(){
     }catch(e){}
   }
 
-  // 3. Revisar sesión Meta
+  // 2. Revisar invite en URL
+  const inviteToken=new URLSearchParams(window.location.search).get('invite');
+  if(inviteToken){
+    try{
+      const res=await fetch(`/api/invite/${inviteToken}`);
+      const inv=await res.json();
+      if(!inv.error&&['usuario','invitado'].includes(inv.role)){
+        // Invite válido para usuario/invitado → mostrar formulario de nombre
+        pendingInviteToken=inviteToken;
+        document.getElementById('login-meta-box').style.display='none';
+        document.getElementById('login-guest-box').style.display='block';
+        const roleLbl=inv.role==='invitado'?'Invitado':'Usuario';
+        document.getElementById('login-guest-sub').textContent=`Fuiste invitado como ${roleLbl}. Ingresa tu nombre para continuar.`;
+        document.getElementById('login-overlay').style.display='flex';
+        return;
+      } else if(inv.error){
+        // Invite inválido o ya usado → mostrar error claro, NO login de Facebook
+        document.getElementById('login-meta-box').style.display='none';
+        document.getElementById('login-guest-box').style.display='block';
+        document.getElementById('login-guest-sub').innerHTML=`<strong style="color:var(--red)">⚠️ ${inv.error}</strong><br><span style="font-size:12px">Solicita un nuevo link a tu administrador.</span>`;
+        document.getElementById('guest-name').style.display='none';
+        document.querySelector('#login-guest-box .btn-meta').style.display='none';
+        document.getElementById('login-overlay').style.display='flex';
+        return;
+      }
+      // Si el invite es para admin → caer al login de Meta abajo
+    }catch(e){}
+  }
+
+  // 3. Revisar sesión Meta (para admins)
   FB.getLoginStatus(function(res){
     if(res.status==='connected'){metaToken=res.authResponse.accessToken;onMetaConnected();}
     else document.getElementById('login-overlay').style.display='flex';
