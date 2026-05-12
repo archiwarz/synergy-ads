@@ -154,20 +154,36 @@ app.post('/api/auth/guest', async (req, res) => {
     const { name, invite_token } = req.body;
     if (!name || !invite_token) return res.status(400).json({ error: 'Nombre e invitación requeridos' });
 
+    // Intentar invite válido (no usado)
     const { data: invite } = await supabase.from('invites').select('*').eq('token', invite_token).eq('used', false).gt('expires_at', new Date().toISOString()).single();
-    if (!invite) return res.status(400).json({ error: 'Invitación inválida o expirada' });
-    if (['admin', 'superadmin'].includes(invite.role)) return res.status(400).json({ error: 'Este rol requiere login con Meta' });
 
-    const sessionToken = require('crypto').randomBytes(32).toString('hex');
-    const { data: user } = await supabase.from('users').insert({
-      name, role: invite.role, ai_tier: invite.ai_tier,
-      allowed_accounts: invite.allowed_accounts,
-      invited_by: invite.created_by,
-      session_token: sessionToken, active: true
-    }).select().single();
+    if (invite) {
+      // Primera vez — crear cuenta
+      if (['admin', 'superadmin'].includes(invite.role)) return res.status(400).json({ error: 'Este rol requiere login con Meta' });
+      const sessionToken = require('crypto').randomBytes(32).toString('hex');
+      const { data: user } = await supabase.from('users').insert({
+        name, role: invite.role, ai_tier: invite.ai_tier,
+        allowed_accounts: invite.allowed_accounts,
+        invited_by: invite.created_by,
+        session_token: sessionToken, active: true
+      }).select().single();
+      await supabase.from('invites').update({ used: true, used_by: user.id }).eq('id', invite.id);
+      return res.json({ user, session_token: sessionToken });
+    }
 
-    await supabase.from('invites').update({ used: true, used_by: user.id }).eq('id', invite.id);
-    res.json({ user, session_token: sessionToken });
+    // Invite ya usado — re-login si el nombre coincide con el usuario original
+    const { data: usedInvite } = await supabase.from('invites').select('*').eq('token', invite_token).eq('used', true).single();
+    if (usedInvite?.used_by) {
+      const { data: existingUser } = await supabase.from('users').select('*').eq('id', usedInvite.used_by).single();
+      if (existingUser && existingUser.name.toLowerCase().trim() === name.toLowerCase().trim() && existingUser.active) {
+        const newToken = require('crypto').randomBytes(32).toString('hex');
+        const { data: user } = await supabase.from('users').update({ session_token: newToken }).eq('id', existingUser.id).select().single();
+        return res.json({ user, session_token: newToken });
+      }
+      return res.status(403).json({ error: 'Nombre incorrecto. Escribe exactamente el nombre con el que te registraste.' });
+    }
+
+    res.status(400).json({ error: 'Invitación inválida o expirada' });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -633,7 +633,7 @@ async function checkStartupAuth(){
       const res=await fetch(`/api/invite/${inviteToken}`);
       const inv=await res.json();
       if(!inv.error&&['usuario','invitado'].includes(inv.role)){
-        // Invite válido para usuario/invitado → mostrar formulario de nombre
+        // Invite válido → primera vez
         pendingInviteToken=inviteToken;
         document.getElementById('login-meta-box').style.display='none';
         document.getElementById('login-guest-box').style.display='block';
@@ -641,8 +641,16 @@ async function checkStartupAuth(){
         document.getElementById('login-guest-sub').textContent=`Fuiste invitado como ${roleLbl}. Ingresa tu nombre para continuar.`;
         document.getElementById('login-overlay').style.display='flex';
         return;
+      } else if(inv.error==='Esta invitación ya fue usada'){
+        // Invite ya usado → re-login con nombre
+        pendingInviteToken=inviteToken;
+        document.getElementById('login-meta-box').style.display='none';
+        document.getElementById('login-guest-box').style.display='block';
+        document.getElementById('login-guest-sub').textContent='Ya tienes una cuenta. Ingresa tu nombre para iniciar sesión.';
+        document.getElementById('login-overlay').style.display='flex';
+        return;
       } else if(inv.error){
-        // Invite inválido o ya usado → mostrar error claro, NO login de Facebook
+        // Expirada u otro error → mostrar error, deshabilitar form
         document.getElementById('login-meta-box').style.display='none';
         document.getElementById('login-guest-box').style.display='block';
         document.getElementById('login-guest-sub').innerHTML=`<strong style="color:var(--red)">⚠️ ${inv.error}</strong><br><span style="font-size:12px">Solicita un nuevo link a tu administrador.</span>`;
