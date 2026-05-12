@@ -1323,14 +1323,16 @@ async function loadAdminData(){
   await Promise.all([loadAdminUsers(), loadAdminInvites()]);
 }
 
+let _adminUsers=[];
 async function loadAdminUsers(){
   try{
     const res=await fetch('/api/admin/users',{headers:authHeaders()});
     const data=await res.json();
     if(data.error){document.getElementById('admin-users-list').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Error</div><div class="empty-sub">${data.error}</div></div>`;return;}
+    _adminUsers=data.users||[];
     const roleBadge=r=>`<span class="role-badge role-${r}">${{superadmin:'Super Admin',admin:'Admin',usuario:'Usuario',invitado:'Invitado'}[r]||r}</span>`;
     const tierBadge=t=>`<span class="tier-badge">${{basico:'Básico',estandar:'Estándar',ilimitado:'Ilimitado'}[t]||t}</span>`;
-    const rows=(data.users||[]).map(u=>{
+    const rows=_adminUsers.map((u,i)=>{
       const isMe=u.id===currentUser?.id;
       const canEdit=!isMe&&(currentUser?.role==='superadmin'||(u.role!=='superadmin'&&u.role!=='admin'));
       const avatarHtml=u.picture?`<img class="user-row-avatar" src="${u.picture}" alt="">`:`<div class="user-row-avatar">${(u.name||'?')[0]}</div>`;
@@ -1338,14 +1340,14 @@ async function loadAdminUsers(){
         ${avatarHtml}
         <div class="user-row-info">
           <div class="user-row-name">${u.name||'Sin nombre'} ${isMe?'<span style="font-size:10px;color:var(--text3)">(tú)</span>':''}</div>
-          <div class="user-row-meta">${u.facebook_id}</div>
+          <div class="user-row-meta">${u.facebook_id||'—'}</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
           ${roleBadge(u.role)}
           ${tierBadge(u.ai_tier)}
           ${!u.active?'<span style="font-size:10px;color:var(--red)">Inactivo</span>':''}
         </div>
-        ${canEdit?`<div style="display:flex;gap:4px"><button class="btn-icon" onclick="openEditModal('${u.id}','${u.role}','${u.ai_tier}',${JSON.stringify(u.allowed_accounts||[])})">Editar</button><button class="btn-icon danger" onclick="toggleUserActive('${u.id}',${u.active})">${u.active?'Desactivar':'Activar'}</button></div>`:''}
+        ${canEdit?`<div style="display:flex;gap:4px"><button class="btn-icon" onclick="openEditModal(${i})">Editar</button><button class="btn-icon danger" onclick="toggleUserActive('${u.id}',${u.active})">${u.active?'Desactivar':'Activar'}</button></div>`:''}
       </div>`;
     }).join('');
     document.getElementById('admin-users-list').innerHTML=rows||'<div class="empty"><div class="empty-sub">Sin usuarios</div></div>';
@@ -1419,10 +1421,13 @@ async function deleteInvite(id){
   loadAdminInvites();
 }
 
-function openEditModal(id,role,tier,accounts){
-  document.getElementById('edit-user-id').value=id;
-  document.getElementById('edit-role').value=role;
-  document.getElementById('edit-tier').value=tier;
+function openEditModal(idx){
+  const u=_adminUsers[idx];
+  if(!u) return;
+  const accounts=u.allowed_accounts||[];
+  document.getElementById('edit-user-id').value=u.id;
+  document.getElementById('edit-role').value=u.role;
+  document.getElementById('edit-tier').value=u.ai_tier;
   document.getElementById('edit-role-admin').style.display=currentUser?.role==='superadmin'?'block':'none';
   document.getElementById('edit-role-superadmin').style.display=currentUser?.role==='superadmin'?'block':'none';
   document.getElementById('edit-accounts').innerHTML=allMetaAccounts.map(a=>
