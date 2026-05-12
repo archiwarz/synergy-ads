@@ -30,7 +30,9 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function getToken(req) {
-  return req.query.token || req.headers['x-meta-token'] || process.env.META_ACCESS_TOKEN;
+  const t = req.query.token || req.headers['x-meta-token'];
+  if (t && t !== 'null' && t !== 'undefined') return t;
+  return process.env.META_ACCESS_TOKEN;
 }
 
 function getAccountId(req) {
@@ -217,31 +219,39 @@ app.post('/api/admin/invites', requireAuth, requireAdmin, async (req, res) => {
     const { data } = await supabase.from('invites').insert({ role, ai_tier, allowed_accounts: allowed_accounts || [], created_by: req.user.id, email: email || null }).select().single();
 
     // Enviar email si se proporcionó correo
+    let emailSent = false;
+    let emailError = null;
     if (email && resend) {
-      const appUrl = process.env.APP_URL || 'http://localhost:3000';
-      const inviteLink = `${appUrl}?invite=${data.token}`;
-      const roleLbl = { admin: 'Administrador', usuario: 'Usuario', invitado: 'Invitado' }[role] || role;
-      const tierLbl = { basico: 'Básico (10 consultas/día)', estandar: 'Estándar (50 consultas/día)', ilimitado: 'Ilimitado' }[ai_tier] || ai_tier;
-      await resend.emails.send({
-        from: 'Synergy Ads <onboarding@resend.dev>',
-        to: email,
-        subject: 'Invitación a Synergy Ads Intelligence',
-        html: `
-          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#0f0f11;color:#f0f0f0;border-radius:12px">
-            <div style="background:#1877F2;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;margin-bottom:20px;color:#fff;text-align:center;line-height:40px">SY</div>
-            <h2 style="margin:0 0 8px;font-size:20px;letter-spacing:-0.03em">Te invitaron a Synergy Ads Intelligence</h2>
-            <p style="color:#9a9aaa;font-size:14px;line-height:1.6;margin:0 0 24px"><strong style="color:#f0f0f0">${req.user.name}</strong> te invitó a acceder al dashboard de análisis de Meta Ads de Synergy.</p>
-            <div style="background:#17171a;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:16px;margin-bottom:24px;font-size:13px">
-              <div style="margin-bottom:6px">Rol: <strong>${roleLbl}</strong></div>
-              <div>Acceso IA: <strong>${tierLbl}</strong></div>
-            </div>
-            <a href="${inviteLink}" style="display:block;background:#1877F2;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;text-align:center;margin-bottom:16px">Aceptar invitación</a>
-            <p style="color:#5a5a6a;font-size:11px;text-align:center;margin:0">Este link expira en 7 días · Synergy · Voxmarket</p>
-          </div>`
-      });
+      try {
+        const appUrl = process.env.APP_URL || 'http://localhost:3000';
+        const inviteLink = `${appUrl}?invite=${data.token}`;
+        const roleLbl = { admin: 'Administrador', usuario: 'Usuario', invitado: 'Invitado' }[role] || role;
+        const tierLbl = { basico: 'Básico (10 consultas/día)', estandar: 'Estándar (50 consultas/día)', ilimitado: 'Ilimitado' }[ai_tier] || ai_tier;
+        await resend.emails.send({
+          from: 'Synergy Ads <onboarding@resend.dev>',
+          to: email,
+          subject: 'Invitación a Synergy Ads Intelligence',
+          html: `
+            <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#0f0f11;color:#f0f0f0;border-radius:12px">
+              <div style="background:#1877F2;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;margin-bottom:20px;color:#fff;text-align:center;line-height:40px">SY</div>
+              <h2 style="margin:0 0 8px;font-size:20px;letter-spacing:-0.03em">Te invitaron a Synergy Ads Intelligence</h2>
+              <p style="color:#9a9aaa;font-size:14px;line-height:1.6;margin:0 0 24px"><strong style="color:#f0f0f0">${req.user.name}</strong> te invitó a acceder al dashboard de análisis de Meta Ads de Synergy.</p>
+              <div style="background:#17171a;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:16px;margin-bottom:24px;font-size:13px">
+                <div style="margin-bottom:6px">Rol: <strong>${roleLbl}</strong></div>
+                <div>Acceso IA: <strong>${tierLbl}</strong></div>
+              </div>
+              <a href="${inviteLink}" style="display:block;background:#1877F2;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;text-align:center;margin-bottom:16px">Aceptar invitación</a>
+              <p style="color:#5a5a6a;font-size:11px;text-align:center;margin:0">Este link expira en 7 días · Synergy · Voxmarket</p>
+            </div>`
+        });
+        emailSent = true;
+      } catch(emailErr) {
+        emailError = emailErr.message;
+        console.error('Resend error:', emailErr.message);
+      }
     }
 
-    res.json({ invite: data, emailSent: !!(email && resend) });
+    res.json({ invite: data, emailSent, emailError });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -270,7 +280,27 @@ app.get('/api/accounts', async (req, res) => {
     const response = await fetch(url);
     const data = await response.json();
     if (data.error) return res.status(400).json({ error: data.error.message });
-    res.json(data);
+
+    let accounts = data.data || [];
+
+    // Filter by allowed_accounts server-side for authenticated non-admin users
+    if (supabase) {
+      const fbId = req.headers['x-facebook-id'];
+      const sessionToken = req.headers['x-session-token'];
+      if (fbId || sessionToken) {
+        let q = supabase.from('users').select('role,allowed_accounts');
+        if (fbId) q = q.eq('facebook_id', fbId);
+        else q = q.eq('session_token', sessionToken);
+        const { data: user } = await q.single();
+        if (user && !['superadmin', 'admin'].includes(user.role)) {
+          accounts = (user.allowed_accounts?.length)
+            ? accounts.filter(a => user.allowed_accounts.includes(a.id))
+            : [];
+        }
+      }
+    }
+
+    res.json({ data: accounts });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

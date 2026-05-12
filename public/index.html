@@ -694,18 +694,27 @@ function updateAiUsageBar(){
 
 async function loadAccounts(){
   try{
-    const res=await fetch(`/api/accounts?token=${metaToken}`);
+    const url=metaToken?`/api/accounts?token=${metaToken}`:'/api/accounts';
+    const res=await fetch(url,{headers:authHeaders()});
     const data=await res.json();
     if(data.error){console.error(data.error);return;}
     allMetaAccounts=data.data||[];
 
     // Filtrar por cuentas permitidas (si no es admin/superadmin)
     let accounts=allMetaAccounts;
-    if(currentUser&&!['superadmin','admin'].includes(currentUser.role)&&currentUser.allowed_accounts?.length){
-      accounts=allMetaAccounts.filter(a=>currentUser.allowed_accounts.includes(a.id));
+    if(currentUser&&!['superadmin','admin'].includes(currentUser.role)){
+      accounts=currentUser.allowed_accounts?.length
+        ?allMetaAccounts.filter(a=>currentUser.allowed_accounts.includes(a.id))
+        :[];
     }
 
     const sel=document.getElementById('account-select');
+    if(accounts.length===0){
+      sel.innerHTML='<option value="">Sin cuentas asignadas</option>';
+      document.getElementById('metrics-section').innerHTML=`<div class="empty"><div class="empty-icon">🔒</div><div class="empty-text">Sin acceso a cuentas</div><div class="empty-sub">Tu administrador aún no te ha asignado cuentas publicitarias</div></div>`;
+      document.getElementById('charts-section').style.display='none';
+      return;
+    }
     sel.innerHTML='<option value="">Seleccionar cuenta...</option>'+
       accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
     if(accounts.length===1){
@@ -721,6 +730,7 @@ async function loadAccounts(){
 
 function onAccountChange(){
   selectedAccountId=document.getElementById('account-select').value;
+  creativesData=[];
   if(selectedAccountId) loadData();
 }
 
@@ -790,7 +800,7 @@ async function loadData(){
   document.getElementById('metrics-section').innerHTML='<div class="loading"><div class="spinner"></div> Conectando con Meta Ads...</div>';
   document.getElementById('charts-section').style.display='none';
   try{
-    const res=await fetch(`/api/campaigns?${apiParams({date_from:from,date_to:to})}`);
+    const res=await fetch(`/api/campaigns?${apiParams({date_from:from,date_to:to})}`,{headers:authHeaders()});
     const data=await res.json();
     if(data.error) throw new Error(data.error);
     campaignData=data.data||[];
@@ -959,13 +969,17 @@ function copyReport(){const t=document.getElementById('report-content')?.innerTe
 
 // ── Creativos ────────────────────────────────────────────────────────────────
 async function loadCreatives(){
+  if(!selectedAccountId){
+    document.getElementById('creatives-section').innerHTML='<div class="empty"><div class="empty-icon">👆</div><div class="empty-text">Selecciona una cuenta primero</div><div class="empty-sub">Elige la cuenta publicitaria en el selector de arriba</div></div>';
+    return;
+  }
   const btn=document.getElementById('btn-creatives');
   btn.disabled=true; btn.textContent='Cargando...';
   document.getElementById('creatives-section').innerHTML='<div class="loading"><div class="spinner"></div> Cargando anuncios desde Meta...</div>';
   document.getElementById('creative-divider').style.display='none';
   document.getElementById('creative-ai-wrap').style.display='none';
   try{
-    const res=await fetch(`/api/ads?${apiParams()}`);
+    const res=await fetch(`/api/ads?${apiParams()}`,{headers:authHeaders()});
     const data=await res.json();
     if(data.error) throw new Error(data.error);
     creativesData=data.data||[];
@@ -1289,7 +1303,7 @@ function setPresetAll(btn){
 
 async function fetchAccountInfo(){
   try{
-    const res=await fetch(`/api/account-info?${apiParams()}`);
+    const res=await fetch(`/api/account-info?${apiParams()}`,{headers:authHeaders()});
     const data=await res.json();
     if(data.created_time){
       accountCreatedDate=data.created_time.split('T')[0];
@@ -1385,10 +1399,13 @@ async function createInvite(){
     document.getElementById('inv-email').value='';
     const link=`${window.location.origin}?invite=${data.invite.token}`;
     if(email&&data.emailSent){
-      alert(`Invitación enviada a ${email}`);
+      alert(`✓ Invitación enviada a ${email}`);
     } else {
-      await navigator.clipboard.writeText(link);
-      alert('Link copiado al portapapeles:\n'+link);
+      await navigator.clipboard.writeText(link).catch(()=>{});
+      const msg=email&&data.emailError
+        ?`No se pudo enviar el email: ${data.emailError}\n\nLink (copiado al portapapeles):\n${link}`
+        :`Link copiado al portapapeles:\n${link}`;
+      alert(msg);
     }
     loadAdminInvites();
   }catch(e){alert(e.message);}
