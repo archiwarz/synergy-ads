@@ -195,10 +195,12 @@ app.patch('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) =>
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete('/api/admin/users/:id', requireAuth, requireSuperAdmin, async (req, res) => {
+app.delete('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const target = await supabase.from('users').select('role').eq('id', req.params.id).single();
-    if (target.data?.role === 'superadmin') return res.status(403).json({ error: 'No puedes eliminar al superadmin' });
+    if (!target.data) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (target.data.role === 'superadmin') return res.status(403).json({ error: 'No puedes eliminar al superadmin' });
+    if (target.data.role === 'admin' && req.user.role !== 'superadmin') return res.status(403).json({ error: 'Solo el superadmin puede eliminar admins' });
     await supabase.from('users').delete().eq('id', req.params.id);
     res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
