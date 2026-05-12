@@ -81,11 +81,15 @@ function extractJson(text) {
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
 async function requireAuth(req, res, next) {
-  if (!supabase) return res.status(503).json({ error: 'Base de datos no disponible. Verifica variables SUPABASE_URL y SUPABASE_SERVICE_KEY.' });
+  if (!supabase) return res.status(503).json({ error: 'Base de datos no disponible.' });
   const fbId = req.headers['x-facebook-id'];
-  if (!fbId) return res.status(401).json({ error: 'No autorizado' });
+  const sessionToken = req.headers['x-session-token'];
+  if (!fbId && !sessionToken) return res.status(401).json({ error: 'No autorizado' });
   try {
-    const { data: user } = await supabase.from('users').select('*').eq('facebook_id', fbId).single();
+    let query = supabase.from('users').select('*');
+    if (fbId) query = query.eq('facebook_id', fbId);
+    else query = query.eq('session_token', sessionToken);
+    const { data: user } = await query.single();
     if (!user || !user.active) return res.status(403).json({ error: 'Acceso denegado' });
     req.user = user;
     next();
@@ -140,6 +144,30 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.get('/api/auth/me', requireAuth, (req, res) => res.json({ user: req.user }));
+
+// Login sin Meta para usuarios/invitados
+app.post('/api/auth/guest', async (req, res) => {
+  try {
+    if (!supabase) return res.status(503).json({ error: 'Base de datos no disponible.' });
+    const { name, invite_token } = req.body;
+    if (!name || !invite_token) return res.status(400).json({ error: 'Nombre e invitación requeridos' });
+
+    const { data: invite } = await supabase.from('invites').select('*').eq('token', invite_token).eq('used', false).gt('expires_at', new Date().toISOString()).single();
+    if (!invite) return res.status(400).json({ error: 'Invitación inválida o expirada' });
+    if (['admin', 'superadmin'].includes(invite.role)) return res.status(400).json({ error: 'Este rol requiere login con Meta' });
+
+    const sessionToken = require('crypto').randomBytes(32).toString('hex');
+    const { data: user } = await supabase.from('users').insert({
+      name, role: invite.role, ai_tier: invite.ai_tier,
+      allowed_accounts: invite.allowed_accounts,
+      invited_by: invite.created_by,
+      session_token: sessionToken, active: true
+    }).select().single();
+
+    await supabase.from('invites').update({ used: true, used_by: user.id }).eq('id', invite.id);
+    res.json({ user, session_token: sessionToken });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
 
 // ── Admin: usuarios ───────────────────────────────────────────────────────────
 app.get('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {

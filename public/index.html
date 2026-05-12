@@ -277,13 +277,24 @@
 
 <!-- Login overlay -->
 <div class="login-overlay" id="login-overlay">
-  <div class="login-box">
+  <!-- Login con Meta (admins) -->
+  <div class="login-box" id="login-meta-box">
     <div class="login-logo">SY</div>
     <div class="login-title">Synergy · Ads Intelligence</div>
     <div class="login-sub">Conecta tu cuenta de Meta para acceder a tus cuentas publicitarias y comenzar el análisis.</div>
     <button class="btn-meta" onclick="metaLogin()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
       Continuar con Meta
+    </button>
+  </div>
+  <!-- Login sin Meta (usuarios/invitados) -->
+  <div class="login-box" id="login-guest-box" style="display:none">
+    <div class="login-logo">SY</div>
+    <div class="login-title">Synergy · Ads Intelligence</div>
+    <div class="login-sub" id="login-guest-sub">Ingresa tu nombre para continuar.</div>
+    <input type="text" id="guest-name" class="form-select" placeholder="Tu nombre completo" style="margin-bottom:16px;font-size:14px" onkeydown="if(event.key==='Enter')guestLogin()">
+    <button class="btn-meta" onclick="guestLogin()" style="background:#22c55e;width:100%;justify-content:center">
+      Continuar →
     </button>
   </div>
 </div>
@@ -541,93 +552,130 @@ let metaToken=null;
 let selectedAccountId=null;
 let currentUser=null;
 let allMetaAccounts=[];
+let sessionToken=localStorage.getItem('synergy_session')||null;
+let pendingInviteToken=null;
 
-// ── Meta SDK ─────────────────────────────────────────────────────────────────
+// ── Auth ──────────────────────────────────────────────────────────────────────
 window.fbAsyncInit=function(){
   FB.init({appId:'3938790032920672',cookie:true,xfbml:false,version:'v19.0'});
-  FB.getLoginStatus(function(res){
-    if(res.status==='connected'){
-      metaToken=res.authResponse.accessToken;
-      onMetaConnected();
-    } else {
-      document.getElementById('login-overlay').style.display='flex';
-    }
-  });
+  // Primero revisar sesión guest o invite en URL
+  checkStartupAuth();
 };
+
+async function checkStartupAuth(){
+  // 1. Revisar si hay invite en URL
+  const inviteToken=new URLSearchParams(window.location.search).get('invite');
+  if(inviteToken){
+    try{
+      const res=await fetch(`/api/invite/${inviteToken}`);
+      const inv=await res.json();
+      if(!inv.error&&['usuario','invitado'].includes(inv.role)){
+        pendingInviteToken=inviteToken;
+        document.getElementById('login-meta-box').style.display='none';
+        document.getElementById('login-guest-box').style.display='block';
+        const roleLbl=inv.role==='invitado'?'Invitado':'Usuario';
+        document.getElementById('login-guest-sub').textContent=`Fuiste invitado como ${roleLbl}. Ingresa tu nombre para continuar.`;
+        document.getElementById('login-overlay').style.display='flex';
+        return;
+      }
+    }catch(e){}
+  }
+
+  // 2. Revisar sesión guest en localStorage
+  if(sessionToken){
+    try{
+      const res=await fetch('/api/auth/me',{headers:{'x-session-token':sessionToken}});
+      const d=await res.json();
+      if(d.user){currentUser=d.user;await onUserReady();return;}
+      else{localStorage.removeItem('synergy_session');sessionToken=null;}
+    }catch(e){}
+  }
+
+  // 3. Revisar sesión Meta
+  FB.getLoginStatus(function(res){
+    if(res.status==='connected'){metaToken=res.authResponse.accessToken;onMetaConnected();}
+    else document.getElementById('login-overlay').style.display='flex';
+  });
+}
 
 function metaLogin(){
   FB.login(function(res){
-    if(res.authResponse){
-      metaToken=res.authResponse.accessToken;
-      onMetaConnected();
-    }
+    if(res.authResponse){metaToken=res.authResponse.accessToken;onMetaConnected();}
   },{scope:'ads_read,ads_management'});
+}
+
+async function guestLogin(){
+  const name=document.getElementById('guest-name').value.trim();
+  if(!name){alert('Ingresa tu nombre para continuar');return;}
+  try{
+    const res=await fetch('/api/auth/guest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,invite_token:pendingInviteToken})});
+    const d=await res.json();
+    if(d.error){alert(d.error);return;}
+    currentUser=d.user;
+    sessionToken=d.session_token;
+    localStorage.setItem('synergy_session',sessionToken);
+    window.history.replaceState({},'',window.location.pathname);
+    await onUserReady();
+  }catch(e){alert(e.message);}
 }
 
 function authHeaders(){
   const h={'Content-Type':'application/json'};
   if(currentUser?.facebook_id) h['x-facebook-id']=currentUser.facebook_id;
+  else if(sessionToken) h['x-session-token']=sessionToken;
   if(metaToken) h['x-meta-token']=metaToken;
   return h;
 }
 
-function metaLogout(){
-  FB.logout(function(){
-    metaToken=null; selectedAccountId=null; currentUser=null; allMetaAccounts=[];
-    document.getElementById('login-overlay').style.display='flex';
-    document.getElementById('account-select').innerHTML='<option value="">Seleccionar cuenta...</option>';
-    document.getElementById('user-info').innerHTML=`<div class="status-pill"><div class="status-dot" id="status-dot"></div><span id="status-text">Sin conectar</span></div>`;
-    document.getElementById('nav-admin').style.display='none';
-  });
+function logout(){
+  if(metaToken){
+    FB.logout(function(){metaToken=null;resetSession();});
+  } else {
+    resetSession();
+  }
+}
+
+function resetSession(){
+  sessionToken=null; currentUser=null; allMetaAccounts=[];
+  localStorage.removeItem('synergy_session');
+  selectedAccountId=null;
+  document.getElementById('login-meta-box').style.display='block';
+  document.getElementById('login-guest-box').style.display='none';
+  document.getElementById('login-overlay').style.display='flex';
+  document.getElementById('account-select').innerHTML='<option value="">Seleccionar cuenta...</option>';
+  document.getElementById('user-info').innerHTML=`<div class="status-pill"><div class="status-dot" id="status-dot"></div><span id="status-text">Sin conectar</span></div>`;
+  document.getElementById('nav-admin').style.display='none';
+  document.getElementById('ai-usage-bar').style.display='none';
 }
 
 async function onMetaConnected(){
-  document.getElementById('login-overlay').style.display='none';
   try{
-    // 1. Obtener info de Meta
     const metaRes=await fetch(`/api/me?token=${metaToken}`);
     const metaUser=await metaRes.json();
     if(metaUser.error) throw new Error(metaUser.error);
-
-    // 2. Registrar/obtener usuario en DB
     const inviteToken=new URLSearchParams(window.location.search).get('invite');
-    const dbRes=await fetch('/api/auth/login',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        facebook_id:metaUser.id,
-        name:metaUser.name,
-        picture:metaUser.picture?.data?.url||null,
-        invite_token:inviteToken||null
-      })
-    });
+    const dbRes=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({facebook_id:metaUser.id,name:metaUser.name,picture:metaUser.picture?.data?.url||null,invite_token:inviteToken||null})});
     const dbData=await dbRes.json();
     if(dbData.error) throw new Error(dbData.error);
     currentUser=dbData.user;
-
-    // Limpiar invite token de la URL
     if(inviteToken) window.history.replaceState({},'',window.location.pathname);
-
-    // 3. Mostrar info en sidebar
-    const avatarHtml=currentUser.picture
-      ?`<img class="user-avatar" src="${currentUser.picture}" alt="">`
-      :`<div class="user-avatar-placeholder">${(currentUser.name||'U')[0]}</div>`;
-    const roleLbl={'superadmin':'Super Admin','admin':'Admin','usuario':'Usuario','invitado':'Invitado'}[currentUser.role]||currentUser.role;
-    document.getElementById('user-info').innerHTML=`
-      <div class="user-pill">${avatarHtml}<div style="flex:1;min-width:0"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${currentUser.name||''}</div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${roleLbl}</div></div></div>
-      <button class="btn-logout" onclick="metaLogout()">Cerrar sesión</button>`;
-
-    // 4. Mostrar admin si corresponde
-    if(['superadmin','admin'].includes(currentUser.role)){
-      document.getElementById('nav-admin').style.display='flex';
-    }
-
-    // 5. Mostrar barra de uso IA (si no es ilimitado ni invitado)
-    updateAiUsageBar();
-
+    await onUserReady();
   }catch(e){console.error(e);}
+}
+
+async function onUserReady(){
+  document.getElementById('login-overlay').style.display='none';
+  const avatarHtml=currentUser.picture?`<img class="user-avatar" src="${currentUser.picture}" alt="">`:
+    `<div class="user-avatar-placeholder">${(currentUser.name||'U')[0]}</div>`;
+  const roleLbl={'superadmin':'Super Admin','admin':'Admin','usuario':'Usuario','invitado':'Invitado'}[currentUser.role]||currentUser.role;
+  document.getElementById('user-info').innerHTML=`
+    <div class="user-pill">${avatarHtml}<div style="flex:1;min-width:0"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${currentUser.name||''}</div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${roleLbl}</div></div></div>
+    <button class="btn-logout" onclick="logout()">Cerrar sesión</button>`;
+  if(['superadmin','admin'].includes(currentUser.role)) document.getElementById('nav-admin').style.display='flex';
+  updateAiUsageBar();
   await loadAccounts();
 }
+// ─────────────────────────────────────────────────────────────────────────────
 
 function updateAiUsageBar(){
   if(!currentUser) return;
