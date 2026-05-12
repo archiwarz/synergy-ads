@@ -271,6 +271,52 @@
   .modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;width:90%;max-width:460px;max-height:80vh;overflow-y:auto}
   .modal-title{font-size:16px;font-weight:600;margin-bottom:20px;letter-spacing:-0.02em}
   .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+  /* ── Responsive ────────────────────────────────────────────────────────────── */
+  .mobile-bar{display:none;align-items:center;justify-content:space-between;padding:11px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:10px}
+  .mobile-logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:-0.02em;flex:1}
+  .mobile-logo-mark{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff;flex-shrink:0}
+  .hamburger{background:none;border:1px solid var(--border);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);flex-shrink:0;font-size:16px}
+  .hamburger:hover{border-color:var(--accent);color:var(--accent)}
+  .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:150}
+  .sidebar-backdrop.show{display:block}
+
+  @media(max-width:768px){
+    .mobile-bar{display:flex}
+    .sidebar{transform:translateX(-220px);transition:transform 0.25s ease;z-index:200}
+    .sidebar.open{transform:translateX(0)}
+    .main{margin-left:0;width:100%;padding:14px 14px 80px}
+    .metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .metrics-grid3{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .metric-card{padding:14px}
+    .metric-value{font-size:22px}
+    .charts-grid{grid-template-columns:1fr}
+    .admin-grid{grid-template-columns:1fr}
+    .pie-wrap{flex-direction:column}
+    .pie-wrap canvas{max-width:150px;max-height:150px}
+    .date-bar{gap:6px;padding:8px 10px}
+    .date-divider{display:none}
+    .preset-btns{gap:4px}
+    .preset-btn{font-size:10px;padding:4px 8px}
+    .account-select{max-width:100%;width:100%}
+    .dp-dropdown{min-width:0;width:calc(100vw - 28px);left:50%;transform:translateX(-50%)}
+    .dp-months{flex-direction:column}
+    .dp-month+.dp-month{border-left:none;border-top:1px solid var(--border);padding-top:12px;margin-top:4px}
+    .login-box{padding:28px 18px}
+    .page-header{flex-direction:column;gap:10px;align-items:flex-start}
+    .an-metrics-grid{grid-template-columns:1fr}
+    .an-campaigns-grid{grid-template-columns:1fr}
+    .user-row{flex-wrap:wrap}
+    .chat-wrap{height:380px}
+    .creatives-grid{grid-template-columns:1fr}
+    .report-box{padding:16px}
+    .table-wrap{font-size:12px}
+    td,th{padding:8px 8px}
+  }
+  @media(max-width:420px){
+    .metrics-grid{grid-template-columns:1fr}
+    .metrics-grid3{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
@@ -299,8 +345,15 @@
   </div>
 </div>
 
+<div class="mobile-bar">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menú">☰</button>
+  <div class="mobile-logo"><div class="mobile-logo-mark">SY</div>Synergy Ads</div>
+  <select class="account-select" style="max-width:140px;font-size:11px" onchange="document.getElementById('account-select').value=this.value;onAccountChange();" id="account-select-mobile"><option value="">Cuenta...</option></select>
+</div>
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
 <div class="app">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="logo">
       <div class="logo-mark">SY</div>
       <div class="logo-name">Synergy</div>
@@ -720,16 +773,20 @@ async function loadAccounts(){
     }
 
     const sel=document.getElementById('account-select');
+    const selMob=document.getElementById('account-select-mobile');
     if(accounts.length===0){
       sel.innerHTML='<option value="">Sin cuentas asignadas</option>';
+      selMob.innerHTML='<option value="">Sin cuentas</option>';
       document.getElementById('metrics-section').innerHTML=`<div class="empty"><div class="empty-icon">🔒</div><div class="empty-text">Sin acceso a cuentas</div><div class="empty-sub">Tu administrador aún no te ha asignado cuentas publicitarias</div></div>`;
       document.getElementById('charts-section').style.display='none';
       return;
     }
-    sel.innerHTML='<option value="">Seleccionar cuenta...</option>'+
-      accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    const optHtml='<option value="">Seleccionar cuenta...</option>'+accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    sel.innerHTML=optHtml;
+    selMob.innerHTML='<option value="">Cuenta...</option>'+accounts.map(a=>`<option value="${a.id}">${a.name.substring(0,22)}</option>`).join('');
     if(accounts.length===1){
       sel.value=accounts[0].id;
+      selMob.value=accounts[0].id;
       selectedAccountId=accounts[0].id;
       loadData();
     } else {
@@ -739,8 +796,23 @@ async function loadAccounts(){
   }catch(e){console.error(e);}
 }
 
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-backdrop').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('show');
+}
+
 function onAccountChange(){
-  selectedAccountId=document.getElementById('account-select').value;
+  const main=document.getElementById('account-select');
+  const mob=document.getElementById('account-select-mobile');
+  selectedAccountId=main.value||mob.value;
+  if(main.value!==mob.value){
+    main.value=selectedAccountId;
+    mob.value=selectedAccountId;
+  }
   creativesData=[];
   if(selectedAccountId) loadData();
 }
@@ -771,6 +843,7 @@ const DP_DIAS=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
 })();
 
 function showTab(tab,el){
+  closeSidebar();
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
