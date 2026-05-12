@@ -1358,7 +1358,7 @@ async function loadAdminUsers(){
           ${tierBadge(u.ai_tier)}
           ${!u.active?'<span style="font-size:10px;color:var(--red)">Inactivo</span>':''}
         </div>
-        ${canEdit?`<div style="display:flex;gap:4px"><button class="btn-icon" onclick="openEditModal(${i})">Editar</button><button class="btn-icon danger" onclick="toggleUserActive('${u.id}',${u.active})">${u.active?'Desactivar':'Activar'}</button></div>`:''}
+        ${canEdit?`<div style="display:flex;gap:4px"><button class="btn-icon" onclick="openEditModal(${i})">Editar</button><button class="btn-icon danger" onclick="toggleUserActive('${u.id}',${u.active})">${u.active?'Desactivar':'Activar'}</button>${currentUser?.role==='superadmin'?`<button class="btn-icon danger" onclick="deleteUser('${u.id}','${u.name||'este usuario'}')">Eliminar</button>`:''}</div>`:''}
       </div>`;
     }).join('');
     document.getElementById('admin-users-list').innerHTML=rows||'<div class="empty"><div class="empty-sub">Sin usuarios</div></div>';
@@ -1466,6 +1466,16 @@ async function toggleUserActive(id,active){
   if(!confirm(`¿${active?'Desactivar':'Activar'} este usuario?`)) return;
   await fetch(`/api/admin/users/${id}`,{method:'PATCH',headers:authHeaders(),body:JSON.stringify({active:!active})});
   loadAdminUsers();
+}
+
+async function deleteUser(id,name){
+  if(!confirm(`¿Eliminar a "${name}" permanentemente? Esta acción no se puede deshacer.`)) return;
+  try{
+    const res=await fetch(`/api/admin/users/${id}`,{method:'DELETE',headers:authHeaders()});
+    const data=await res.json();
+    if(data.error){alert(data.error);return;}
+    loadAdminUsers();
+  }catch(e){alert(e.message);}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
