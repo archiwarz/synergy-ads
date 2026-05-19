@@ -77,8 +77,37 @@ async function callClaude(body) {
 }
 
 function extractJson(text) {
-  const m = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/```\s*([\s\S]*?)\s*```/) || text.match(/(\{[\s\S]*\})/);
-  return m ? m[1] : text;
+  if (!text || typeof text !== 'string') return '';
+  const jsonFence = text.match(/```json\s*([\s\S]*?)\s*```/i);
+  if (jsonFence) return jsonFence[1].trim();
+  const anyFence = text.match(/```\s*([\s\S]*?)\s*```/);
+  if (anyFence) return anyFence[1].trim();
+
+  const start = Math.min(
+    ...['{', '[']
+      .map(c => { const idx = text.indexOf(c); return idx === -1 ? Infinity : idx; })
+  );
+  if (start === Infinity) return text.trim();
+
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  const openChar = text[start];
+  const closeChar = openChar === '[' ? ']' : '}';
+  for (let i = start; i < text.length; i++) {
+    const char = text[i];
+    if (escape) { escape = false; continue; }
+    if (char === '\\') { escape = true; continue; }
+    if (char === '"') { inString = !inString; continue; }
+    if (!inString) {
+      if (char === openChar) depth++;
+      else if (char === closeChar) {
+        depth--;
+        if (depth === 0) return text.slice(start, i + 1).trim();
+      }
+    }
+  }
+  return text.slice(start).trim();
 }
 
 // ── Auth middleware ───────────────────────────────────────────────────────────
@@ -433,9 +462,10 @@ Benchmarks financieros: CPL bueno <$15, CTR bueno >1.5%, frecuencia problema >3.
 
     const data = await callClaude({ model: 'claude-sonnet-4-5', max_tokens: 2000, system: systemPrompt, messages: [...history.slice(-6), { role: 'user', content: message }] });
     if (data.error) return res.status(400).json({ error: data.error.message });
+    const text = data?.content?.[0]?.text || data?.completion?.output?.[0]?.content?.[0]?.text || data?.output_text || '';
 
-    try { res.json({ reply: JSON.parse(extractJson(data.content[0].text)), isJson: true }); }
-    catch { res.json({ reply: data.content[0].text, isJson: false }); }
+    try { res.json({ reply: JSON.parse(extractJson(text)), isJson: true }); }
+    catch { res.json({ reply: text, isJson: false }); }
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -459,9 +489,10 @@ Top 3 mejores y 3 peores. Mínimo 5 recomendaciones. Benchmarks: CPL<$15 bueno, 
 Datos: ${JSON.stringify(slim)}` }]
     });
     if (data.error) return res.status(400).json({ error: data.error.message });
+    const text = data?.content?.[0]?.text || data?.completion?.output?.[0]?.content?.[0]?.text || data?.output_text || '';
 
-    try { res.json({ report: JSON.parse(extractJson(data.content[0].text)), isJson: true }); }
-    catch { res.json({ report: data.content[0].text, isJson: false }); }
+    try { res.json({ report: JSON.parse(extractJson(text)), isJson: true }); }
+    catch { res.json({ report: text, isJson: false }); }
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
