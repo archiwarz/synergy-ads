@@ -317,6 +317,60 @@
     .metrics-grid{grid-template-columns:1fr}
     .metrics-grid3{grid-template-columns:1fr}
   }
+  /* Objective tabs */
+  .obj-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+  .obj-tab{font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;transition:all 0.15s;background:var(--bg3);font-family:'DM Sans',sans-serif;white-space:nowrap}
+  .obj-tab:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+  .obj-tab.active{background:var(--accent-soft);border-color:rgba(24,119,242,0.35);color:var(--accent)}
+  .obj-tab .obj-count{font-size:10px;font-family:'DM Mono',monospace;opacity:0.7;margin-left:5px}
+  /* Health score badge */
+  .health-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;font-family:'DM Mono',monospace;border:1px solid transparent}
+  .health-badge.good{background:rgba(34,197,94,0.12);color:#22c55e;border-color:rgba(34,197,94,0.2)}
+  .health-badge.ok{background:rgba(245,158,11,0.12);color:#f59e0b;border-color:rgba(245,158,11,0.2)}
+  .health-badge.bad{background:rgba(239,68,68,0.1);color:#ef4444;border-color:rgba(239,68,68,0.2)}
+  /* Campaign group header */
+  .obj-group-header{background:var(--bg3)!important;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;font-family:'DM Mono',monospace}
+  .obj-group-header td{display:flex;align-items:center;gap:8px}
+  .obj-group-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  /* Creative filters */
+  .filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius)}
+  .filter-bar label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap}
+  .filter-select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
+  .filter-select:focus{border-color:var(--accent)}
+  /* Creative auto-labels */
+  .creative-label{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.03em;border:1px solid transparent;white-space:nowrap}
+  .clabel-winner{background:rgba(34,197,94,0.12);color:#22c55e;border-color:rgba(34,197,94,0.2)}
+  .clabel-fatigue{background:rgba(239,68,68,0.1);color:#ef4444;border-color:rgba(239,68,68,0.2)}
+  .clabel-waste{background:rgba(239,68,68,0.08);color:#f87171;border-color:rgba(239,68,68,0.15)}
+  .clabel-ctr{background:rgba(245,158,11,0.12);color:#f59e0b;border-color:rgba(245,158,11,0.2)}
+  .clabel-observe{background:rgba(156,163,175,0.08);color:#9ca3af;border-color:rgba(156,163,175,0.15)}
+  /* IA scope bar */
+  .ai-scope-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .ai-scope-bar label{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+  /* Campaign detail modal */
+  .camp-detail-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+  .camp-detail-metric{background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center}
+  .camp-detail-metric .label{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
+  .camp-detail-metric .value{font-size:18px;font-weight:600;letter-spacing:-0.03em}
+  @media(max-width:480px){.camp-detail-metrics{grid-template-columns:repeat(2,1fr)}}
+  /* Delta vs previous period */
+  .delta-down{color:var(--red)}
+  .metric-delta-row{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11px;color:var(--text3)}
+  /* Alerts bar */
+  .alerts-bar{background:var(--bg2);border:1px solid rgba(239,68,68,0.18);border-radius:var(--radius);padding:14px 16px;margin-bottom:18px}
+  .alerts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+  .alert-card{display:flex;align-items:flex-start;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 12px}
+  .alert-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
+  .alert-body{flex:1;min-width:0}
+  .alert-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+  .alert-desc{font-size:11px;color:var(--text2);line-height:1.45}
+  /* View toggle */
+  .view-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .view-btn{background:none;border:none;padding:5px 12px;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+  .view-btn.active{background:var(--accent);color:#fff}
+  /* Client view — hide technical elements */
+  .client-view [data-tech]{display:none!important}
+  @media(max-width:768px){.alerts-grid{grid-template-columns:1fr}.view-toggle{display:none}}
 </style>
 </head>
 <body>
@@ -420,8 +474,15 @@
           <div class="page-title">Dashboard · Meta Ads <span class="period-tag" id="period-label">—</span></div>
           <div class="page-sub">Synergy — Inversión Privada</div>
         </div>
-        <button class="btn btn-primary" onclick="loadData()" id="btn-load">↻ Actualizar</button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="view-toggle">
+            <button class="view-btn active" id="view-btn-trafficker" onclick="setView('trafficker')">Trafficker</button>
+            <button class="view-btn" id="view-btn-cliente" onclick="setView('cliente')">Cliente</button>
+          </div>
+          <button class="btn btn-primary" onclick="loadData()" id="btn-load">↻ Actualizar</button>
+        </div>
       </div>
+      <div id="alerts-section" style="display:none"></div>
       <div id="metrics-section"><div class="empty"><div class="empty-icon">👆</div><div class="empty-text">Selecciona una cuenta publicitaria</div><div class="empty-sub">Elige la cuenta en el selector de arriba para cargar los datos</div></div></div>
       <div id="charts-section" style="display:none">
         <div class="charts-grid">
@@ -429,8 +490,8 @@
           <div class="chart-card"><div class="chart-title">Distribución de leads</div><div class="pie-wrap"><canvas id="chart-pie"></canvas><div class="pie-legend" id="pie-legend"></div></div></div>
         </div>
         <div class="charts-grid">
-          <div class="chart-card"><div class="chart-title">CPL por campaña (verde = bueno, rojo = alto)</div><div class="chart-wrap"><canvas id="chart-cpl"></canvas></div></div>
-          <div class="chart-card"><div class="chart-title">CTR por campaña</div><div class="chart-wrap"><canvas id="chart-ctr"></canvas></div></div>
+          <div class="chart-card" data-tech><div class="chart-title">CPL por campaña (verde = bueno, rojo = alto)</div><div class="chart-wrap"><canvas id="chart-cpl"></canvas></div></div>
+          <div class="chart-card" data-tech><div class="chart-title">CTR por campaña</div><div class="chart-wrap"><canvas id="chart-ctr"></canvas></div></div>
         </div>
       </div>
     </div>
@@ -477,13 +538,26 @@
     <!-- ANÁLISIS IA -->
     <div class="tab-content" id="tab-ai">
       <div class="page-header"><div><div class="page-title">Análisis con IA</div><div class="page-sub">Pregúntame sobre las campañas de Synergy</div></div></div>
+      <div class="ai-scope-bar">
+        <label>Analizar:</label>
+        <select class="filter-select" id="ai-scope">
+          <option value="">Cuenta completa</option>
+          <option value="Leads">Objetivo: Leads</option>
+          <option value="Compras">Objetivo: Compras</option>
+          <option value="Awareness">Objetivo: Awareness</option>
+          <option value="Tráfico">Objetivo: Tráfico</option>
+          <option value="Video Views">Objetivo: Video Views</option>
+          <option value="Engagement">Objetivo: Engagement</option>
+        </select>
+      </div>
       <div class="quick-actions">
-        <div class="quick-btn" onclick="askQuick('¿Cuáles campañas tienen el mejor CPL?')">Mejor CPL</div>
-        <div class="quick-btn" onclick="askQuick('¿Qué campañas necesitan optimización urgente?')">Optimización urgente</div>
-        <div class="quick-btn" onclick="askQuick('¿Cómo mejorar la calidad de leads para inversión privada?')">Calidad de leads</div>
-        <div class="quick-btn" onclick="askQuick('¿Qué audiencias están funcionando mejor?')">Mejores audiencias</div>
-        <div class="quick-btn" onclick="askQuick('Dame recomendaciones de presupuesto para el próximo mes')">Presupuesto</div>
-        <div class="quick-btn" onclick="askQuick('¿Cuál es el CTR promedio y cómo mejorarlo?')">Mejorar CTR</div>
+        <div class="quick-btn" onclick="askQuick('¿Qué campaña debo optimizar primero?')">Optimizar primero</div>
+        <div class="quick-btn" onclick="askQuick('¿Qué creativo está funcionando mejor?')">Mejor creativo</div>
+        <div class="quick-btn" onclick="askQuick('¿Dónde se está desperdiciando presupuesto?')">Desperdicio presupuesto</div>
+        <div class="quick-btn" onclick="askQuick('¿Qué objetivo tiene mejor rendimiento?')">Mejor objetivo</div>
+        <div class="quick-btn" onclick="askQuick('¿Qué campaña debería escalar?')">Escalar campaña</div>
+        <div class="quick-btn" onclick="askQuick('¿Qué anuncios debería pausar ya?')">Pausar anuncios</div>
+        <div class="quick-btn" onclick="askQuick('¿Qué recomendaciones aplicarías esta semana?')">Recomendaciones</div>
       </div>
       <div class="chat-wrap">
         <div class="chat-messages" id="chat-messages">
@@ -591,14 +665,34 @@
       </div>
     </div>
 
+    <!-- MODAL DETALLE CAMPAÑA -->
+    <div class="modal-overlay" id="camp-detail-modal" style="display:none" onclick="if(event.target===this)document.getElementById('camp-detail-modal').style.display='none'">
+      <div class="modal" style="max-width:620px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px">
+          <div class="modal-title" id="camp-detail-title" style="margin-bottom:0;font-size:14px;line-height:1.4;flex:1;min-width:0"></div>
+          <button class="btn-icon" onclick="document.getElementById('camp-detail-modal').style.display='none'" style="flex-shrink:0">✕</button>
+        </div>
+        <div id="camp-detail-body"></div>
+      </div>
+    </div>
+
     <div class="footer">© 2025 Voxmarket · Todos los derechos reservados</div>
   </main>
 </div>
 
 <script>
-let campaignData=[], chatHistory=[], creativesData=[];
+let campaignData=[], prevCampaignData=[], chatHistory=[], creativesData=[];
 let barChart,pieChart,cplChart,ctrChart;
 const COLORS=['#1877F2','#22c55e','#f59e0b','#a855f7','#ef4444','#06b6d4','#f97316','#84cc16','#ec4899','#6366f1'];
+const OBJ_MAP={
+  LEAD_GENERATION:'Leads',OUTCOME_LEADS:'Leads',
+  CONVERSIONS:'Compras',OUTCOME_SALES:'Compras',
+  BRAND_AWARENESS:'Awareness',REACH:'Awareness',
+  LINK_CLICKS:'Tráfico',OUTCOME_TRAFFIC:'Tráfico',
+  VIDEO_VIEWS:'Video Views',OUTCOME_VIDEO_VIEWS:'Video Views',
+  POST_ENGAGEMENT:'Engagement',OUTCOME_ENGAGEMENT:'Engagement'
+};
+const OBJ_COLORS={'Leads':'#1877F2','Compras':'#22c55e','Awareness':'#a855f7','Tráfico':'#06b6d4','Video Views':'#f97316','Engagement':'#ec4899'};
 
 let accountCreatedDate=null;
 let metaToken=null;
@@ -886,20 +980,36 @@ async function loadData(){
   btn.disabled=true; btn.textContent='Cargando...';
   const from=document.getElementById('date-from').value;
   const to=document.getElementById('date-to').value;
+  // Calculate previous period (same duration, shifted back)
+  const fDate=new Date(from+'T12:00:00'), tDate=new Date(to+'T12:00:00');
+  const days=Math.round((tDate-fDate)/(1000*60*60*24));
+  const prevTo=new Date(fDate); prevTo.setDate(prevTo.getDate()-1);
+  const prevFrom=new Date(prevTo); prevFrom.setDate(prevFrom.getDate()-days);
+  const prevFromStr=prevFrom.toISOString().split('T')[0];
+  const prevToStr=prevTo.toISOString().split('T')[0];
   const label=getPeriodLabel();
   document.getElementById('period-label').textContent=label;
   document.getElementById('period-label2').textContent=label;
   document.getElementById('metrics-section').innerHTML='<div class="loading"><div class="spinner"></div> Conectando con Meta Ads...</div>';
   document.getElementById('charts-section').style.display='none';
+  document.getElementById('alerts-section').style.display='none';
   try{
-    const res=await fetch(`/api/campaigns?${apiParams({date_from:from,date_to:to})}`,{headers:authHeaders()});
-    const data=await res.json();
+    const [currRes, prevRes]=await Promise.all([
+      fetch(`/api/campaigns?${apiParams({date_from:from,date_to:to})}`,{headers:authHeaders()}),
+      fetch(`/api/campaigns?${apiParams({date_from:prevFromStr,date_to:prevToStr})}`,{headers:authHeaders()}).catch(()=>null)
+    ]);
+    const data=await currRes.json();
     if(data.error) throw new Error(data.error);
     campaignData=data.data||[];
+    try{
+      const prevData=prevRes?await prevRes.json():null;
+      prevCampaignData=(!prevData||prevData.error)?[]:(prevData.data||[]);
+    }catch(e){prevCampaignData=[];}
     renderMetrics(campaignData);
     renderTable(campaignData);
     document.getElementById('charts-section').style.display='block';
     renderCharts(campaignData);
+    renderAlerts(generateAlerts(campaignData));
     document.getElementById('status-dot')?.classList.add('on');
     if(document.getElementById('status-text')) document.getElementById('status-text').textContent=`${campaignData.length} campañas`;
   }catch(err){
@@ -918,18 +1028,36 @@ function renderMetrics(campaigns){
   const cpl=leads>0?'$'+(spend/leads).toFixed(2):'—';
   const ctr=impr>0?((clicks/impr)*100).toFixed(2)+'%':'—';
   const active=campaigns.filter(c=>c.status==='ACTIVE').length;
+  const hs=calcHealthScore(spend,leads,impr,clicks,campaigns);
+  // Previous period aggregates
+  let pSpend=0,pLeads=0,pClicks=0,pImpr=0;
+  prevCampaignData.forEach(c=>{
+    const ins=c.insights?.data?.[0]||{};
+    pSpend+=parseFloat(ins.spend||0); pClicks+=parseInt(ins.clicks||0); pImpr+=parseInt(ins.impressions||0);
+    (ins.actions||[]).filter(a=>a.action_type==='lead').forEach(a=>pLeads+=parseInt(a.value||0));
+  });
+  const hasPrev=prevCampaignData.length>0;
+  const pCplVal=pLeads>0?pSpend/pLeads:null;
+  const pCtrVal=pImpr>0?(pClicks/pImpr)*100:null;
+  const d=(cur,prv,inv=false)=>hasPrev&&prv?fmtDelta((cur-prv)/prv*100,inv):'';
   document.getElementById('metrics-section').innerHTML=`
-    <div class="metrics-grid">
-      <div class="metric-card"><div class="metric-label">Spend total</div><div class="metric-value">$${Math.round(spend).toLocaleString()}</div><div class="metric-delta">Inversión del período</div></div>
-      <div class="metric-card"><div class="metric-label">Leads</div><div class="metric-value">${leads.toLocaleString()}</div><div class="metric-delta">Total período</div></div>
-      <div class="metric-card"><div class="metric-label">CPL promedio</div><div class="metric-value">${cpl}</div><div class="metric-delta">Costo por lead</div></div>
-      <div class="metric-card"><div class="metric-label">Campañas</div><div class="metric-value">${campaigns.length}</div><div class="metric-delta delta-up">${active} activas</div></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">Score de cuenta</span>
+      ${hs.badge}
+      ${hasPrev?`<span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">· vs período anterior</span>`:''}
     </div>
-    <div class="metrics-grid3">
-      <div class="metric-card"><div class="metric-label">CTR promedio</div><div class="metric-value">${ctr}</div><div class="metric-delta">Click-through rate</div></div>
-      <div class="metric-card"><div class="metric-label">Impresiones</div><div class="metric-value">${impr>1000000?(impr/1000000).toFixed(1)+'M':impr>1000?(impr/1000).toFixed(0)+'K':impr}</div><div class="metric-delta">Alcance total</div></div>
-      <div class="metric-card"><div class="metric-label">Clicks</div><div class="metric-value">${clicks>1000?(clicks/1000).toFixed(1)+'K':clicks}</div><div class="metric-delta">Total período</div></div>
-    </div>`;
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Inversión total</div><div class="metric-value">$${Math.round(spend).toLocaleString()}</div><div class="metric-delta-row">${d(spend,pSpend)}<span style="color:var(--text3)">vs anterior</span></div></div>
+      <div class="metric-card"><div class="metric-label">Leads</div><div class="metric-value">${leads.toLocaleString()}</div><div class="metric-delta-row">${d(leads,pLeads)}<span style="color:var(--text3)">vs anterior</span></div></div>
+      <div class="metric-card"><div class="metric-label">CPL promedio</div><div class="metric-value">${cpl}</div><div class="metric-delta-row">${pCplVal?d(leads>0?spend/leads:0,pCplVal,true):''}<span style="color:var(--text3)">costo por lead</span></div></div>
+      <div class="metric-card"><div class="metric-label">Campañas</div><div class="metric-value">${campaigns.length}</div><div class="metric-delta-row"><span class="delta-up">${active} activas</span></div></div>
+    </div>
+    <div class="metrics-grid3" data-tech>
+      <div class="metric-card"><div class="metric-label">CTR promedio</div><div class="metric-value">${ctr}</div><div class="metric-delta-row">${pCtrVal?d(impr>0?(clicks/impr)*100:0,pCtrVal):''}<span style="color:var(--text3)">click-through rate</span></div></div>
+      <div class="metric-card"><div class="metric-label">Impresiones</div><div class="metric-value">${impr>1000000?(impr/1000000).toFixed(1)+'M':impr>1000?(impr/1000).toFixed(0)+'K':impr}</div><div class="metric-delta-row">${d(impr,pImpr)}<span style="color:var(--text3)">alcance total</span></div></div>
+      <div class="metric-card"><div class="metric-label">Clicks</div><div class="metric-value">${clicks>1000?(clicks/1000).toFixed(1)+'K':clicks}</div><div class="metric-delta-row">${d(clicks,pClicks)}<span style="color:var(--text3)">total período</span></div></div>
+    </div>
+    ${renderObjTabs(campaigns)}`;
 }
 
 function destroyChart(c){if(c){try{c.destroy();}catch(e){}}}
@@ -988,19 +1116,37 @@ function renderTable(campaigns){
   if(!campaigns.length){document.getElementById('campaigns-table-wrap').innerHTML='<div class="empty"><div class="empty-icon">📢</div><div class="empty-text">No hay campañas</div></div>';return;}
   const allLeads=campaigns.map(c=>{const ins=c.insights?.data?.[0]||{};return(ins.actions||[]).filter(a=>a.action_type==='lead').reduce((s,a)=>s+parseInt(a.value||0),0);});
   const maxL=Math.max(...allLeads,1);
-  const rows=campaigns.map((c,i)=>{
-    const ins=c.insights?.data?.[0]||{};
-    const spend=parseFloat(ins.spend||0).toFixed(0);
-    const l=allLeads[i];
-    const cpl=l>0?'$'+(parseFloat(ins.spend||0)/l).toFixed(2):'—';
-    const ctr=ins.ctr?parseFloat(ins.ctr).toFixed(2)+'%':'—';
-    const obj=(c.objective||'').replace(/_/g,' ').toLowerCase();
-    const sc=c.status==='ACTIVE'?'badge-active':c.status==='PAUSED'?'badge-paused':'badge-off';
-    const sl=c.status==='ACTIVE'?'Activa':c.status==='PAUSED'?'Pausada':c.status;
-    const bw=Math.max(Math.round((l/maxL)*60),2);
-    return `<tr><td><div class="campaign-name" title="${c.name}">${c.name}</div></td><td style="color:var(--text2);font-size:11px">${obj}</td><td class="mono">$${spend}</td><td><div class="lead-bar"><span class="mono" style="min-width:24px">${l||0}</span><div class="lead-bar-fill" style="width:${bw}px"></div></div></td><td class="mono">${cpl}</td><td class="mono">${ctr}</td><td><span class="badge ${sc}">${sl}</span></td></tr>`;
-  }).join('');
-  document.getElementById('campaigns-table-wrap').innerHTML=`<div class="table-wrap"><table><thead><tr><th>Campaña</th><th>Objetivo</th><th>Spend</th><th>Leads</th><th>CPL</th><th>CTR</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  // Group by objective label
+  const groups={};
+  campaigns.forEach((c,i)=>{
+    const label=OBJ_MAP[c.objective]||c.objective?.replace(/_/g,' ').toLowerCase()||'Otros';
+    if(!groups[label]) groups[label]=[];
+    groups[label].push({c,i});
+  });
+  let tbody='';
+  Object.entries(groups).forEach(([label,items])=>{
+    const color=OBJ_COLORS[label]||'#9a9aaa';
+    tbody+=`<tr class="obj-group-header"><td colspan="6"><div class="obj-group-dot" style="background:${color}"></div>${label} · ${items.length} campaña${items.length!==1?'s':''}</td></tr>`;
+    tbody+=items.map(({c,i})=>{
+      const ins=c.insights?.data?.[0]||{};
+      const spend=parseFloat(ins.spend||0).toFixed(0);
+      const l=allLeads[i];
+      const cpl=l>0?'$'+(parseFloat(ins.spend||0)/l).toFixed(2):'—';
+      const ctr=ins.ctr?parseFloat(ins.ctr).toFixed(2)+'%':'—';
+      const sc=c.status==='ACTIVE'?'badge-active':c.status==='PAUSED'?'badge-paused':'badge-off';
+      const sl=c.status==='ACTIVE'?'Activa':c.status==='PAUSED'?'Pausada':c.status;
+      const bw=Math.max(Math.round((l/maxL)*60),2);
+      return `<tr style="cursor:pointer" onclick="openCampaignDetail('${c.id}','${c.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">
+        <td><div class="campaign-name" title="${c.name}">${c.name}</div></td>
+        <td class="mono">$${spend}</td>
+        <td><div class="lead-bar"><span class="mono" style="min-width:24px">${l||0}</span><div class="lead-bar-fill" style="width:${bw}px"></div></div></td>
+        <td class="mono">${cpl}</td>
+        <td class="mono">${ctr}</td>
+        <td><span class="badge ${sc}">${sl}</span></td>
+      </tr>`;
+    }).join('');
+  });
+  document.getElementById('campaigns-table-wrap').innerHTML=`<div class="table-wrap"><table><thead><tr><th>Campaña</th><th>Spend</th><th>Leads</th><th>CPL</th><th>CTR</th><th>Estado</th></tr></thead><tbody>${tbody}</tbody></table></div>`;
 }
 
 async function sendMessage(){
@@ -1010,8 +1156,11 @@ async function sendMessage(){
   document.getElementById('send-btn').disabled=true;
   const typing=addTyping();
   chatHistory.push({role:'user',content:text});
+  const scope=document.getElementById('ai-scope')?.value;
+  const scopedData=scope?campaignData.filter(c=>(OBJ_MAP[c.objective]||c.objective||'')===scope):campaignData;
+  const scopePrefix=scope?`[Analizar solo campañas de objetivo "${scope}"] `:'';
   try{
-    const res=await fetch('/api/analyze',{method:'POST',headers:authHeaders(),body:JSON.stringify({message:text,campaignData,history:chatHistory.slice(-10)})});
+    const res=await fetch('/api/analyze',{method:'POST',headers:authHeaders(),body:JSON.stringify({message:scopePrefix+text,campaignData:scopedData,history:chatHistory.slice(-10)})});
     const data=await res.json();
     if(data.error) throw new Error(data.error);
     const replyContent=data.isJson?data.reply:data.reply;
@@ -1091,12 +1240,77 @@ function renderCreatives(ads){
     document.getElementById('creatives-section').innerHTML='<div class="empty"><div class="empty-icon">🎨</div><div class="empty-text">No hay anuncios en los últimos 90 días</div></div>';
     return;
   }
-  const cards=ads.map(ad=>{
+  const total=ads.length;
+  const activos=ads.filter(a=>a.status==='ACTIVE').length;
+  const conIns=ads.filter(a=>a.insights?.data?.[0]).length;
+  document.getElementById('creatives-section').innerHTML=`
+    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="metric-card" style="flex:1;min-width:120px;padding:12px 16px"><div class="metric-label">Total anuncios</div><div class="metric-value" style="font-size:20px">${total}</div></div>
+      <div class="metric-card" style="flex:1;min-width:120px;padding:12px 16px"><div class="metric-label">Activos</div><div class="metric-value" style="font-size:20px;color:var(--green)">${activos}</div></div>
+      <div class="metric-card" style="flex:1;min-width:120px;padding:12px 16px"><div class="metric-label">Con datos</div><div class="metric-value" style="font-size:20px">${conIns}</div></div>
+    </div>
+    <div class="filter-bar">
+      <label>Estado:</label>
+      <select class="filter-select" id="cr-status" onchange="applyCreativeFilters()">
+        <option value="all">Todos</option>
+        <option value="ACTIVE">Activos</option>
+        <option value="PAUSED">Pausados</option>
+      </select>
+      <label style="margin-left:6px">Ordenar:</label>
+      <select class="filter-select" id="cr-sort" onchange="applyCreativeFilters()">
+        <option value="spend">Mayor spend</option>
+        <option value="ctr">Mayor CTR</option>
+        <option value="leads">Más leads</option>
+        <option value="cpl">Menor CPL</option>
+        <option value="freq">Mayor frecuencia</option>
+      </select>
+    </div>
+    <div class="creatives-grid" id="creatives-grid"></div>`;
+  renderCreativeGrid(ads);
+}
+
+function applyCreativeFilters(){
+  const status=document.getElementById('cr-status')?.value||'all';
+  const sort=document.getElementById('cr-sort')?.value||'spend';
+  let filtered=creativesData.filter(a=>status==='all'||a.status===status);
+  filtered=[...filtered].sort((a,b)=>{
+    const ai=a.insights?.data?.[0]||{},bi=b.insights?.data?.[0]||{};
+    if(sort==='spend') return parseFloat(bi.spend||0)-parseFloat(ai.spend||0);
+    if(sort==='ctr') return parseFloat(bi.ctr||0)-parseFloat(ai.ctr||0);
+    if(sort==='freq') return parseFloat(bi.frequency||0)-parseFloat(ai.frequency||0);
+    if(sort==='leads'){
+      const al=(ai.actions||[]).filter(x=>x.action_type==='lead').reduce((s,x)=>s+parseInt(x.value||0),0);
+      const bl=(bi.actions||[]).filter(x=>x.action_type==='lead').reduce((s,x)=>s+parseInt(x.value||0),0);
+      return bl-al;
+    }
+    if(sort==='cpl'){
+      const asl=parseFloat(ai.spend||0),bsl=parseFloat(bi.spend||0);
+      const al=(ai.actions||[]).filter(x=>x.action_type==='lead').reduce((s,x)=>s+parseInt(x.value||0),0);
+      const bl=(bi.actions||[]).filter(x=>x.action_type==='lead').reduce((s,x)=>s+parseInt(x.value||0),0);
+      const acpl=al>0?asl/al:Infinity,bcpl=bl>0?bsl/bl:Infinity;
+      return acpl-bcpl;
+    }
+    return 0;
+  });
+  renderCreativeGrid(filtered);
+}
+
+function renderCreativeGrid(ads){
+  const grid=document.getElementById('creatives-grid');
+  if(!grid) return;
+  if(!ads.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🎨</div><div class="empty-text">Sin resultados para el filtro</div></div>';return;}
+  const base=creativesData.filter(a=>a.insights?.data?.[0]);
+  const allCtrs=base.map(a=>parseFloat(a.insights.data[0].ctr||0)).sort((a,b)=>a-b);
+  const allSpends=base.map(a=>parseFloat(a.insights.data[0].spend||0));
+  const p75Ctr=allCtrs[Math.floor(allCtrs.length*0.75)]||0;
+  const avgSpend=allSpends.length?allSpends.reduce((a,b)=>a+b,0)/allSpends.length:0;
+  grid.innerHTML=ads.map(ad=>{
     const ins=ad.insights?.data?.[0]||{};
     const leads=(ins.actions||[]).filter(a=>a.action_type==='lead').reduce((s,a)=>s+parseInt(a.value||0),0);
     const spend=parseFloat(ins.spend||0);
     const cpl=leads>0?'$'+(spend/leads).toFixed(2):'—';
-    const ctr=ins.ctr?parseFloat(ins.ctr).toFixed(2)+'%':'—';
+    const ctrVal=parseFloat(ins.ctr||0);
+    const ctr=ins.ctr?ctrVal.toFixed(2)+'%':'—';
     const freq=ins.frequency?parseFloat(ins.frequency).toFixed(1):'—';
     const freqNum=parseFloat(ins.frequency||0);
     const freqColor=freqNum>4?'var(--red)':freqNum>2.5?'var(--yellow)':'var(--text)';
@@ -1107,6 +1321,7 @@ function renderCreatives(ads){
     const thumbHtml=thumb
       ?`<img src="${thumb}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=creative-thumb-placeholder>🎨</div>'">`
       :'<div class="creative-thumb-placeholder">🎨</div>';
+    const lbl=getCreativeLabel(freqNum,ctrVal,leads,spend,avgSpend,p75Ctr);
     return `<div class="creative-card">
       <div class="creative-thumb">${thumbHtml}</div>
       <div class="creative-body">
@@ -1114,29 +1329,29 @@ function renderCreatives(ads){
         ${body?`<div class="creative-copy">${body}</div>`:''}
         <div class="creative-metrics">
           <div class="cm"><div class="cm-label">CPL</div><div class="cm-value">${cpl}</div></div>
-          <div class="cm"><div class="cm-label">CTR</div><div class="cm-value">${ctr}</div></div>
-          <div class="cm"><div class="cm-label">Frec.</div><div class="cm-value" style="color:${freqColor}">${freq}</div></div>
+          <div class="cm" data-tech><div class="cm-label">CTR</div><div class="cm-value">${ctr}</div></div>
+          <div class="cm" data-tech><div class="cm-label">Frec.</div><div class="cm-value" style="color:${freqColor}">${freq}</div></div>
         </div>
         <div class="creative-footer">
           <span class="creative-spend">${spend>0?'$'+Math.round(spend).toLocaleString()+' spend':'Sin spend'}</span>
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             ${leads>0?`<span class="creative-leads">${leads} leads</span>`:''}
+            ${lbl?`<span class="creative-label ${lbl.cls}">${lbl.text}</span>`:''}
             <span class="badge ${sc}">${sl}</span>
           </div>
         </div>
       </div>
     </div>`;
   }).join('');
-  const total=ads.length;
-  const activos=ads.filter(a=>a.status==='ACTIVE').length;
-  const conIns=ads.filter(a=>a.insights?.data?.[0]).length;
-  document.getElementById('creatives-section').innerHTML=`
-    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-      <div class="metric-card" style="flex:1;min-width:120px;padding:12px 16px"><div class="metric-label">Total anuncios</div><div class="metric-value" style="font-size:20px">${total}</div></div>
-      <div class="metric-card" style="flex:1;min-width:120px;padding:12px 16px"><div class="metric-label">Activos</div><div class="metric-value" style="font-size:20px;color:var(--green)">${activos}</div></div>
-      <div class="metric-card" style="flex:1;min-width:120px;padding:12px 16px"><div class="metric-label">Con datos</div><div class="metric-value" style="font-size:20px">${conIns}</div></div>
-    </div>
-    <div class="creatives-grid">${cards}</div>`;
+}
+
+function getCreativeLabel(freqNum,ctrVal,leads,spend,avgSpend,p75Ctr){
+  if(freqNum>3.5&&(leads>0||spend>0)) return {text:'Fatiga creativa',cls:'clabel-fatigue'};
+  if(ctrVal>=p75Ctr&&p75Ctr>0&&leads>0) return {text:'Ganador',cls:'clabel-winner'};
+  if(spend>avgSpend&&avgSpend>0&&leads===0&&spend>0) return {text:'Alto gasto · sin conv.',cls:'clabel-waste'};
+  if(ctrVal>=p75Ctr&&p75Ctr>0&&leads===0) return {text:'Buen CTR · sin conv.',cls:'clabel-ctr'};
+  if(spend>0) return {text:'En observación',cls:'clabel-observe'};
+  return null;
 }
 
 async function analyzeCreatives(){
@@ -1287,6 +1502,216 @@ function extractJsonString(text) {
 
 function escapeHtml(str) {
   return str.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+}
+// ────────────────────────────────────────────────────────────────────────────
+
+// ── Delta, Alerts, View toggle ───────────────────────────────────────────────
+function fmtDelta(pct,invert=false){
+  if(pct===null||pct===undefined||isNaN(pct)) return '';
+  const abs=Math.abs(pct);
+  if(abs<0.5) return '';
+  const isGood=invert?pct<0:pct>0;
+  const cls=isGood?'delta-up':'delta-down';
+  return `<span class="${cls}">${pct>0?'▲':'▼'} ${abs.toFixed(1)}%</span>`;
+}
+
+function generateAlerts(campaigns){
+  const alerts=[];
+  campaigns.filter(c=>c.status==='ACTIVE').forEach(c=>{
+    const ins=c.insights?.data?.[0]||{};
+    const spend=parseFloat(ins.spend||0);
+    const leads=(ins.actions||[]).filter(a=>a.action_type==='lead').reduce((s,a)=>s+parseInt(a.value||0),0);
+    const cpl=leads>0?spend/leads:null;
+    const freq=parseFloat(ins.frequency||0);
+    const ctr=parseFloat(ins.ctr||0);
+    const nm=c.name.length>30?c.name.substring(0,28)+'…':c.name;
+    if(cpl!==null&&cpl>20)
+      alerts.push({type:'warning',priority:'alta',title:'CPL por encima del objetivo',
+        desc:`"${nm}" tiene CPL $${cpl.toFixed(0)}, ${Math.round((cpl/15-1)*100)}% sobre benchmark ($15).`});
+    if(freq>3.5)
+      alerts.push({type:'warning',priority:'alta',title:'Fatiga creativa detectada',
+        desc:`"${nm}" tiene frecuencia ${freq.toFixed(1)} — renovar creativos.`});
+    if(spend>300&&leads===0)
+      alerts.push({type:'warning',priority:'alta',title:'Inversión sin resultados',
+        desc:`"${nm}" lleva $${Math.round(spend)} invertido sin leads en el período.`});
+    if(ctr>0&&ctr<0.5&&spend>100)
+      alerts.push({type:'info',priority:'media',title:'CTR bajo',
+        desc:`"${nm}" tiene CTR ${ctr.toFixed(2)}% — revisar creativos o segmentación.`});
+    if(cpl!==null&&cpl<12&&leads>5)
+      alerts.push({type:'opportunity',priority:'baja',title:'Oportunidad de escalamiento',
+        desc:`"${nm}" tiene CPL $${cpl.toFixed(0)} con buen volumen — considerar escalar.`});
+  });
+  const po={alta:0,media:1,baja:2};
+  return alerts
+    .sort((a,b)=>(po[a.priority]??2)-(po[b.priority]??2))
+    .slice(0,6);
+}
+
+function renderAlerts(alerts){
+  const section=document.getElementById('alerts-section');
+  if(!section) return;
+  if(!alerts.length){section.style.display='none';return;}
+  const iconColor=t=>t==='opportunity'?'var(--green)':t==='warning'?'var(--red)':'var(--yellow)';
+  const icon=t=>t==='opportunity'?'↑':'!';
+  const cards=alerts.map(a=>`
+    <div class="alert-card">
+      <div class="alert-icon" style="background:${iconColor(a.type)}">${icon(a.type)}</div>
+      <div class="alert-body">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-desc">${a.desc}</div>
+      </div>
+      <span class="an-rec-badge ${a.priority}" style="flex-shrink:0;align-self:center">${a.priority}</span>
+    </div>`).join('');
+  section.innerHTML=`
+    <div class="alerts-bar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">
+          Alertas automáticas
+          <span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.2);font-size:9px;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600">${alerts.length}</span>
+        </div>
+        <button class="btn-icon" onclick="document.getElementById('alerts-section').style.display='none'" style="font-size:10px">Ocultar</button>
+      </div>
+      <div class="alerts-grid">${cards}</div>
+    </div>`;
+  section.style.display='block';
+}
+
+function setView(v){
+  document.getElementById('view-btn-trafficker').classList.toggle('active',v==='trafficker');
+  document.getElementById('view-btn-cliente').classList.toggle('active',v==='cliente');
+  document.querySelector('.main').classList.toggle('client-view',v==='cliente');
+}
+// ────────────────────────────────────────────────────────────────────────────
+
+// ── Dashboard helpers ────────────────────────────────────────────────────────
+function calcHealthScore(spend,leads,impr,clicks,campaigns){
+  let score=10;
+  const cpl=leads>0?spend/leads:null;
+  const ctr=impr>0?(clicks/impr)*100:null;
+  if(cpl===null) score-=3;
+  else if(cpl>30) score-=4;
+  else if(cpl>20) score-=2;
+  if(ctr===null) score-=1;
+  else if(ctr<0.5) score-=3;
+  else if(ctr<1) score-=1;
+  if(!campaigns.filter(c=>c.status==='ACTIVE').length) score-=2;
+  score=Math.max(1,Math.min(10,score));
+  const cls=score>=7?'good':score>=5?'ok':'bad';
+  const label=score>=7?'Saludable':score>=5?'Regular':'Revisar';
+  return {score,badge:`<span class="health-badge ${cls}">◉ ${label} ${score}/10</span>`};
+}
+
+function renderObjTabs(campaigns){
+  const groups={};
+  campaigns.forEach(c=>{
+    const label=OBJ_MAP[c.objective]||c.objective?.replace(/_/g,' ').toLowerCase()||'Otros';
+    if(!groups[label]) groups[label]={count:0,spend:0,leads:0};
+    groups[label].count++;
+    const ins=c.insights?.data?.[0]||{};
+    groups[label].spend+=parseFloat(ins.spend||0);
+    groups[label].leads+=(ins.actions||[]).filter(a=>a.action_type==='lead').reduce((s,a)=>s+parseInt(a.value||0),0);
+  });
+  if(Object.keys(groups).length<=1) return '';
+  const tabs=Object.entries(groups).map(([label,data])=>{
+    const color=OBJ_COLORS[label]||'#9a9aaa';
+    const cpl=data.leads>0?'$'+(data.spend/data.leads).toFixed(0):'—';
+    return `<div class="obj-tab" onclick="filterByObj('${label}',this)">${label}<span class="obj-count">${data.count}</span></div>`;
+  }).join('');
+  return `<div style="margin-top:18px">
+    <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Por objetivo</div>
+    <div class="obj-tabs">
+      <div class="obj-tab active" onclick="filterByObj(null,this)">Todos<span class="obj-count">${campaigns.length}</span></div>
+      ${tabs}
+    </div>
+    <div id="obj-metrics-detail" style="margin-top:10px"></div>
+  </div>`;
+}
+
+function filterByObj(label,el){
+  document.querySelectorAll('.obj-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const filtered=label?campaignData.filter(c=>(OBJ_MAP[c.objective]||c.objective?.replace(/_/g,' ').toLowerCase()||'Otros')===label):campaignData;
+  const detail=document.getElementById('obj-metrics-detail');
+  if(!detail) return;
+  if(!label){detail.innerHTML='';renderTable(campaignData);return;}
+  let spend=0,leads=0,clicks=0,impr=0;
+  filtered.forEach(c=>{
+    const ins=c.insights?.data?.[0]||{};
+    spend+=parseFloat(ins.spend||0); clicks+=parseInt(ins.clicks||0); impr+=parseInt(ins.impressions||0);
+    (ins.actions||[]).filter(a=>a.action_type==='lead').forEach(a=>leads+=parseInt(a.value||0));
+  });
+  const cpl=leads>0?'$'+(spend/leads).toFixed(2):'—';
+  const ctr=impr>0?((clicks/impr)*100).toFixed(2)+'%':'—';
+  const cpm=impr>0?'$'+(spend/impr*1000).toFixed(2):'—';
+  const color=OBJ_COLORS[label]||'#9a9aaa';
+  detail.innerHTML=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:3px solid ${color}">
+    <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:10px">${label} · ${filtered.length} campaña${filtered.length!==1?'s':''}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px">
+      <div><div style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px">Spend</div><div style="font-size:16px;font-weight:600;letter-spacing:-0.02em">$${Math.round(spend).toLocaleString()}</div></div>
+      <div><div style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px">Leads</div><div style="font-size:16px;font-weight:600;letter-spacing:-0.02em">${leads}</div></div>
+      <div><div style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px">CPL</div><div style="font-size:16px;font-weight:600;letter-spacing:-0.02em">${cpl}</div></div>
+      <div><div style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px">CTR</div><div style="font-size:16px;font-weight:600;letter-spacing:-0.02em">${ctr}</div></div>
+      <div><div style="font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px">CPM</div><div style="font-size:16px;font-weight:600;letter-spacing:-0.02em">${cpm}</div></div>
+    </div>
+  </div>`;
+  renderTable(filtered);
+}
+
+async function openCampaignDetail(id,name){
+  document.getElementById('camp-detail-title').textContent=name;
+  document.getElementById('camp-detail-body').innerHTML='<div class="loading"><div class="spinner"></div> Cargando adsets...</div>';
+  document.getElementById('camp-detail-modal').style.display='flex';
+  try{
+    const from=document.getElementById('date-from').value;
+    const to=document.getElementById('date-to').value;
+    const res=await fetch(`/api/campaigns/${id}/adsets?${apiParams({date_from:from,date_to:to})}`,{headers:authHeaders()});
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
+    const camp=campaignData.find(c=>c.id===id)||{};
+    const ins=camp.insights?.data?.[0]||{};
+    const spend=parseFloat(ins.spend||0);
+    const leads=(ins.actions||[]).filter(a=>a.action_type==='lead').reduce((s,a)=>s+parseInt(a.value||0),0);
+    const cpl=leads>0?'$'+(spend/leads).toFixed(2):'—';
+    const ctr=ins.ctr?parseFloat(ins.ctr).toFixed(2)+'%':'—';
+    const cpm=ins.cpm?'$'+parseFloat(ins.cpm).toFixed(2):'—';
+    const reach=ins.reach?parseInt(ins.reach).toLocaleString():'—';
+    const adsets=data.data||[];
+    const adsetRows=adsets.map(as=>{
+      const asi=as.insights?.data?.[0]||{};
+      const asLeads=(asi.actions||[]).filter(a=>a.action_type==='lead').reduce((s,a)=>s+parseInt(a.value||0),0);
+      const asSpend=parseFloat(asi.spend||0);
+      const asCpl=asLeads>0?'$'+(asSpend/asLeads).toFixed(2):'—';
+      const asCtr=asi.ctr?parseFloat(asi.ctr).toFixed(2)+'%':'—';
+      const sc2=as.status==='ACTIVE'?'badge-active':as.status==='PAUSED'?'badge-paused':'badge-off';
+      const sl2=as.status==='ACTIVE'?'Activo':as.status==='PAUSED'?'Pausado':as.status;
+      return `<tr><td><div style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">${as.name}</div></td><td class="mono">$${Math.round(asSpend)}</td><td class="mono">${asLeads}</td><td class="mono">${asCpl}</td><td class="mono">${asCtr}</td><td><span class="badge ${sc2}">${sl2}</span></td></tr>`;
+    }).join('');
+    const objLabel=OBJ_MAP[camp.objective]||camp.objective||'';
+    const sc=camp.status==='ACTIVE'?'badge-active':camp.status==='PAUSED'?'badge-paused':'badge-off';
+    const sl=camp.status==='ACTIVE'?'Activa':camp.status==='PAUSED'?'Pausada':camp.status||'—';
+    document.getElementById('camp-detail-body').innerHTML=`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <span class="badge ${sc}">${sl}</span>
+        ${objLabel?`<span style="font-size:11px;color:var(--text3)">${objLabel}</span>`:''}
+      </div>
+      <div class="camp-detail-metrics">
+        <div class="camp-detail-metric"><div class="label">Spend</div><div class="value">$${Math.round(spend).toLocaleString()}</div></div>
+        <div class="camp-detail-metric"><div class="label">Leads</div><div class="value">${leads}</div></div>
+        <div class="camp-detail-metric"><div class="label">CPL</div><div class="value">${cpl}</div></div>
+        <div class="camp-detail-metric"><div class="label">CTR</div><div class="value">${ctr}</div></div>
+        <div class="camp-detail-metric"><div class="label">CPM</div><div class="value">${cpm}</div></div>
+        <div class="camp-detail-metric"><div class="label">Reach</div><div class="value">${reach}</div></div>
+      </div>
+      ${adsets.length?`
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Conjuntos de anuncios (${adsets.length})</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Adset</th><th>Spend</th><th>Leads</th><th>CPL</th><th>CTR</th><th>Estado</th></tr></thead>
+          <tbody>${adsetRows}</tbody>
+        </table></div>`
+      :'<div class="empty" style="padding:20px"><div class="empty-sub">Sin conjuntos de anuncios en el período</div></div>'}`;
+  }catch(err){
+    document.getElementById('camp-detail-body').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Error</div><div class="empty-sub">${err.message}</div></div>`;
+  }
 }
 // ────────────────────────────────────────────────────────────────────────────
 
